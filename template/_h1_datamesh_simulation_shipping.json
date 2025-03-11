@@ -1,0 +1,35 @@
+{
+    "timestamp": "2025-03-06 14:34:48",
+
+        "FG": [
+            {
+                "Key": "已出貨",
+                "Value": 42
+            },
+            {
+                "Key": "待出貨",
+                "Value": 8
+            },
+            {
+                "Key": "Light 9",
+                "Value": "GREEN"
+            }
+        ],
+
+
+        "CELL": [
+            {
+                "Key": "已出貨",
+                "Value": 161
+            },
+            {
+                "Key": "待出貨",
+                "Value": 76
+            },
+            {
+                "Key": "Light 57",
+                "Value": "GREEN"
+            }
+        ]
+
+}

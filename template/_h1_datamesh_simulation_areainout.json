@@ -1,0 +1,975 @@
+{
+    "timestamp": "2025-03-06 14:58:48",
+    "area_light_counts": [
+        {
+            "area": "57\"庫",
+            "light": "green",
+            "count": 122,
+            "count_35": 14,
+            "count_5": 0,
+            "ttl": 312
+        },
+        {
+            "area": "57\"特",
+            "light": "green",
+            "count": 95,
+            "count_35": 0,
+            "count_5": 0,
+            "ttl": 120
+        },
+        {
+            "area": "57\"零",
+            "light": "red",
+            "count": 215,
+            "count_35": 2,
+            "count_5": 0,
+            "ttl": 120
+        },
+        {
+            "area": "91\"庫",
+            "light": "green",
+            "count": 70,
+            "count_35": 0,
+            "count_5": 0,
+            "ttl": 312
+        },
+        {
+            "area": "91\"零",
+            "light": "yellow",
+            "count": 145,
+            "count_35": 0,
+            "count_5": 0,
+            "ttl": 180
+        },
+        {
+            "area": "engrcv",
+            "light": "green",
+            "count": 0,
+            "count_35": 0,
+            "count_5": 0,
+            "ttl": 120
+        },
+        {
+            "area": "收待",
+            "light": "green",
+            "count": 0,
+            "count_35": 0,
+            "count_5": 0,
+            "ttl": 120
+        },
+        {
+            "area": "包材",
+            "light": "red",
+            "count": 198,
+            "count_35": 0,
+            "count_5": 0,
+            "ttl": 132
+        },
+        {
+            "area": "原物料",
+            "light": "green",
+            "count": 176,
+            "count_35": 0,
+            "count_5": 0,
+            "ttl": 540
+        },
+        {
+            "area": "待配對",
+            "light": "green",
+            "count": 183,
+            "count_35": 0,
+            "count_5": 0,
+            "ttl": 240
+        },
+        {
+            "area": "成品特",
+            "light": "green",
+            "count": 92,
+            "count_35": 3,
+            "count_5": 0,
+            "ttl": 120
+        },
+        {
+            "area": "特逾品",
+            "light": "yellow",
+            "count": 78,
+            "count_35": 0,
+            "count_5": 0,
+            "ttl": 96
+        },
+        {
+            "area": "素玻璃",
+            "light": "green",
+            "count": 0,
+            "count_35": 0,
+            "count_5": 0,
+            "ttl": 30
+        }
+    ],
+    "areainout": [
+        {
+            "area": "57\"庫",
+            "inout": "IN",
+            "req_day": 1,
+            "count": 1
+        },
+        {
+            "area": "57\"庫",
+            "inout": "OUT",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "57\"庫",
+            "inout": "IN",
+            "req_day": 2,
+            "count": 9
+        },
+        {
+            "area": "57\"庫",
+            "inout": "OUT",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "57\"庫",
+            "inout": "IN",
+            "req_day": 3,
+            "count": 0
+        },
+        {
+            "area": "57\"庫",
+            "inout": "OUT",
+            "req_day": 3,
+            "count": 0
+        },
+        {
+            "area": "57\"庫",
+            "inout": "IN",
+            "req_day": 4,
+            "count": 0
+        },
+        {
+            "area": "57\"庫",
+            "inout": "OUT",
+            "req_day": 4,
+            "count": 0
+        },
+        {
+            "area": "57\"庫",
+            "inout": "IN",
+            "req_day": 5,
+            "count": 3
+        },
+        {
+            "area": "57\"庫",
+            "inout": "OUT",
+            "req_day": 5,
+            "count": 2
+        },
+        {
+            "area": "57\"庫",
+            "inout": "IN",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "57\"庫",
+            "inout": "OUT",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "57\"特",
+            "inout": "IN",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "57\"特",
+            "inout": "OUT",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "57\"特",
+            "inout": "IN",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "57\"特",
+            "inout": "OUT",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "57\"特",
+            "inout": "IN",
+            "req_day": 3,
+            "count": 0
+        },
+        {
+            "area": "57\"特",
+            "inout": "OUT",
+            "req_day": 3,
+            "count": 0
+        },
+        {
+            "area": "57\"特",
+            "inout": "IN",
+            "req_day": 4,
+            "count": 5
+        },
+        {
+            "area": "57\"特",
+            "inout": "OUT",
+            "req_day": 4,
+            "count": 5
+        },
+        {
+            "area": "57\"特",
+            "inout": "IN",
+            "req_day": 5,
+            "count": 0
+        },
+        {
+            "area": "57\"特",
+            "inout": "OUT",
+            "req_day": 5,
+            "count": 0
+        },
+        {
+            "area": "57\"特",
+            "inout": "IN",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "57\"特",
+            "inout": "OUT",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "57\"零",
+            "inout": "IN",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "57\"零",
+            "inout": "OUT",
+            "req_day": 1,
+            "count": 6
+        },
+        {
+            "area": "57\"零",
+            "inout": "IN",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "57\"零",
+            "inout": "OUT",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "57\"零",
+            "inout": "IN",
+            "req_day": 3,
+            "count": 0
+        },
+        {
+            "area": "57\"零",
+            "inout": "OUT",
+            "req_day": 3,
+            "count": 9
+        },
+        {
+            "area": "57\"零",
+            "inout": "IN",
+            "req_day": 4,
+            "count": 73
+        },
+        {
+            "area": "57\"零",
+            "inout": "OUT",
+            "req_day": 4,
+            "count": 1
+        },
+        {
+            "area": "57\"零",
+            "inout": "IN",
+            "req_day": 5,
+            "count": 67
+        },
+        {
+            "area": "57\"零",
+            "inout": "OUT",
+            "req_day": 5,
+            "count": 15
+        },
+        {
+            "area": "57\"零",
+            "inout": "IN",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "57\"零",
+            "inout": "OUT",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "91\"庫",
+            "inout": "IN",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "91\"庫",
+            "inout": "OUT",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "91\"庫",
+            "inout": "IN",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "91\"庫",
+            "inout": "OUT",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "91\"庫",
+            "inout": "IN",
+            "req_day": 3,
+            "count": 0
+        },
+        {
+            "area": "91\"庫",
+            "inout": "OUT",
+            "req_day": 3,
+            "count": 19
+        },
+        {
+            "area": "91\"庫",
+            "inout": "IN",
+            "req_day": 4,
+            "count": 7
+        },
+        {
+            "area": "91\"庫",
+            "inout": "OUT",
+            "req_day": 4,
+            "count": 3
+        },
+        {
+            "area": "91\"庫",
+            "inout": "IN",
+            "req_day": 5,
+            "count": 0
+        },
+        {
+            "area": "91\"庫",
+            "inout": "OUT",
+            "req_day": 5,
+            "count": 0
+        },
+        {
+            "area": "91\"庫",
+            "inout": "IN",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "91\"庫",
+            "inout": "OUT",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "91\"零",
+            "inout": "IN",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "91\"零",
+            "inout": "OUT",
+            "req_day": 1,
+            "count": 6
+        },
+        {
+            "area": "91\"零",
+            "inout": "IN",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "91\"零",
+            "inout": "OUT",
+            "req_day": 2,
+            "count": 2
+        },
+        {
+            "area": "91\"零",
+            "inout": "IN",
+            "req_day": 3,
+            "count": 58
+        },
+        {
+            "area": "91\"零",
+            "inout": "OUT",
+            "req_day": 3,
+            "count": 1
+        },
+        {
+            "area": "91\"零",
+            "inout": "IN",
+            "req_day": 4,
+            "count": 28
+        },
+        {
+            "area": "91\"零",
+            "inout": "OUT",
+            "req_day": 4,
+            "count": 0
+        },
+        {
+            "area": "91\"零",
+            "inout": "IN",
+            "req_day": 5,
+            "count": 34
+        },
+        {
+            "area": "91\"零",
+            "inout": "OUT",
+            "req_day": 5,
+            "count": 11
+        },
+        {
+            "area": "91\"零",
+            "inout": "IN",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "91\"零",
+            "inout": "OUT",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "包材",
+            "inout": "IN",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "包材",
+            "inout": "OUT",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "包材",
+            "inout": "IN",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "包材",
+            "inout": "OUT",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "包材",
+            "inout": "IN",
+            "req_day": 3,
+            "count": 0
+        },
+        {
+            "area": "包材",
+            "inout": "OUT",
+            "req_day": 3,
+            "count": 0
+        },
+        {
+            "area": "包材",
+            "inout": "IN",
+            "req_day": 4,
+            "count": 0
+        },
+        {
+            "area": "包材",
+            "inout": "OUT",
+            "req_day": 4,
+            "count": 0
+        },
+        {
+            "area": "包材",
+            "inout": "IN",
+            "req_day": 5,
+            "count": 0
+        },
+        {
+            "area": "包材",
+            "inout": "OUT",
+            "req_day": 5,
+            "count": 0
+        },
+        {
+            "area": "包材",
+            "inout": "IN",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "包材",
+            "inout": "OUT",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "原物料",
+            "inout": "IN",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "原物料",
+            "inout": "OUT",
+            "req_day": 1,
+            "count": 7
+        },
+        {
+            "area": "原物料",
+            "inout": "IN",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "原物料",
+            "inout": "OUT",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "原物料",
+            "inout": "IN",
+            "req_day": 3,
+            "count": 32
+        },
+        {
+            "area": "原物料",
+            "inout": "OUT",
+            "req_day": 3,
+            "count": 3
+        },
+        {
+            "area": "原物料",
+            "inout": "IN",
+            "req_day": 4,
+            "count": 34
+        },
+        {
+            "area": "原物料",
+            "inout": "OUT",
+            "req_day": 4,
+            "count": 4
+        },
+        {
+            "area": "原物料",
+            "inout": "IN",
+            "req_day": 5,
+            "count": 0
+        },
+        {
+            "area": "原物料",
+            "inout": "OUT",
+            "req_day": 5,
+            "count": 6
+        },
+        {
+            "area": "原物料",
+            "inout": "IN",
+            "req_day": 6,
+            "count": 2
+        },
+        {
+            "area": "原物料",
+            "inout": "OUT",
+            "req_day": 6,
+            "count": 3
+        },
+        {
+            "area": "待配對",
+            "inout": "IN",
+            "req_day": 1,
+            "count": 48
+        },
+        {
+            "area": "待配對",
+            "inout": "OUT",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "待配對",
+            "inout": "IN",
+            "req_day": 2,
+            "count": 46
+        },
+        {
+            "area": "待配對",
+            "inout": "OUT",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "待配對",
+            "inout": "IN",
+            "req_day": 3,
+            "count": 25
+        },
+        {
+            "area": "待配對",
+            "inout": "OUT",
+            "req_day": 3,
+            "count": 39
+        },
+        {
+            "area": "待配對",
+            "inout": "IN",
+            "req_day": 4,
+            "count": 19
+        },
+        {
+            "area": "待配對",
+            "inout": "OUT",
+            "req_day": 4,
+            "count": 5
+        },
+        {
+            "area": "待配對",
+            "inout": "IN",
+            "req_day": 5,
+            "count": 29
+        },
+        {
+            "area": "待配對",
+            "inout": "OUT",
+            "req_day": 5,
+            "count": 14
+        },
+        {
+            "area": "待配對",
+            "inout": "IN",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "待配對",
+            "inout": "OUT",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "成品特",
+            "inout": "IN",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "成品特",
+            "inout": "OUT",
+            "req_day": 1,
+            "count": 4
+        },
+        {
+            "area": "成品特",
+            "inout": "IN",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "成品特",
+            "inout": "OUT",
+            "req_day": 2,
+            "count": 4
+        },
+        {
+            "area": "成品特",
+            "inout": "IN",
+            "req_day": 3,
+            "count": 0
+        },
+        {
+            "area": "成品特",
+            "inout": "OUT",
+            "req_day": 3,
+            "count": 4
+        },
+        {
+            "area": "成品特",
+            "inout": "IN",
+            "req_day": 4,
+            "count": 18
+        },
+        {
+            "area": "成品特",
+            "inout": "OUT",
+            "req_day": 4,
+            "count": 13
+        },
+        {
+            "area": "成品特",
+            "inout": "IN",
+            "req_day": 5,
+            "count": 23
+        },
+        {
+            "area": "成品特",
+            "inout": "OUT",
+            "req_day": 5,
+            "count": 2
+        },
+        {
+            "area": "成品特",
+            "inout": "IN",
+            "req_day": 6,
+            "count": 8
+        },
+        {
+            "area": "成品特",
+            "inout": "OUT",
+            "req_day": 6,
+            "count": 1
+        },
+        {
+            "area": "材料特",
+            "inout": "IN",
+            "req_day": 1,
+            "count": 23
+        },
+        {
+            "area": "材料特",
+            "inout": "OUT",
+            "req_day": 1,
+            "count": 18
+        },
+        {
+            "area": "材料特",
+            "inout": "IN",
+            "req_day": 2,
+            "count": 0
+        },
+        {
+            "area": "材料特",
+            "inout": "OUT",
+            "req_day": 2,
+            "count": 8
+        },
+        {
+            "area": "材料特",
+            "inout": "IN",
+            "req_day": 3,
+            "count": 87
+        },
+        {
+            "area": "材料特",
+            "inout": "OUT",
+            "req_day": 3,
+            "count": 37
+        },
+        {
+            "area": "材料特",
+            "inout": "IN",
+            "req_day": 4,
+            "count": 14
+        },
+        {
+            "area": "材料特",
+            "inout": "OUT",
+            "req_day": 4,
+            "count": 28
+        },
+        {
+            "area": "材料特",
+            "inout": "IN",
+            "req_day": 5,
+            "count": 21
+        },
+        {
+            "area": "材料特",
+            "inout": "OUT",
+            "req_day": 5,
+            "count": 26
+        },
+        {
+            "area": "材料特",
+            "inout": "IN",
+            "req_day": 6,
+            "count": 36
+        },
+        {
+            "area": "材料特",
+            "inout": "OUT",
+            "req_day": 6,
+            "count": 15
+        },
+        {
+            "area": "特逾品",
+            "inout": "IN",
+            "req_day": 1,
+            "count": 20
+        },
+        {
+            "area": "特逾品",
+            "inout": "OUT",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "特逾品",
+            "inout": "IN",
+            "req_day": 2,
+            "count": 2
+        },
+        {
+            "area": "特逾品",
+            "inout": "OUT",
+            "req_day": 2,
+            "count": 23
+        },
+        {
+            "area": "特逾品",
+            "inout": "IN",
+            "req_day": 3,
+            "count": 28
+        },
+        {
+            "area": "特逾品",
+            "inout": "OUT",
+            "req_day": 3,
+            "count": 64
+        },
+        {
+            "area": "特逾品",
+            "inout": "IN",
+            "req_day": 4,
+            "count": 68
+        },
+        {
+            "area": "特逾品",
+            "inout": "OUT",
+            "req_day": 4,
+            "count": 32
+        },
+        {
+            "area": "特逾品",
+            "inout": "IN",
+            "req_day": 5,
+            "count": 18
+        },
+        {
+            "area": "特逾品",
+            "inout": "OUT",
+            "req_day": 5,
+            "count": 29
+        },
+        {
+            "area": "特逾品",
+            "inout": "IN",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "特逾品",
+            "inout": "OUT",
+            "req_day": 6,
+            "count": 42
+        },
+        {
+            "area": "素玻璃",
+            "inout": "IN",
+            "req_day": 1,
+            "count": 4
+        },
+        {
+            "area": "素玻璃",
+            "inout": "OUT",
+            "req_day": 1,
+            "count": 4
+        },
+        {
+            "area": "素玻璃",
+            "inout": "IN",
+            "req_day": 2,
+            "count": 2
+        },
+        {
+            "area": "素玻璃",
+            "inout": "OUT",
+            "req_day": 2,
+            "count": 6
+        },
+        {
+            "area": "素玻璃",
+            "inout": "IN",
+            "req_day": 3,
+            "count": 0
+        },
+        {
+            "area": "素玻璃",
+            "inout": "OUT",
+            "req_day": 3,
+            "count": 1
+        },
+        {
+            "area": "素玻璃",
+            "inout": "IN",
+            "req_day": 4,
+            "count": 0
+        },
+        {
+            "area": "素玻璃",
+            "inout": "OUT",
+            "req_day": 4,
+            "count": 0
+        },
+        {
+            "area": "素玻璃",
+            "inout": "IN",
+            "req_day": 5,
+            "count": 0
+        },
+        {
+            "area": "素玻璃",
+            "inout": "OUT",
+            "req_day": 5,
+            "count": 0
+        },
+        {
+            "area": "素玻璃",
+            "inout": "IN",
+            "req_day": 6,
+            "count": 0
+        },
+        {
+            "area": "素玻璃",
+            "inout": "OUT",
+            "req_day": 6,
+            "count": 0
+        }
+    ]
+}

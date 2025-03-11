@@ -1,0 +1,103 @@
+{
+    "timestamp": "2025-03-06 15:22:11",
+    "results": [
+        {
+            "Key": "CAR_PLAN",
+            "Value": 30
+        },
+        {
+            "Key": "CAR_IN",
+            "Value": 16
+        },
+        {
+            "Key": "35_DAYS",
+            "Value": 87
+        },
+        {
+            "Key": "5_DAYS",
+            "Value": 20
+        },
+        {
+            "Key": "堆高機OK",
+            "Value": 11
+        },
+        {
+            "Key": "堆高機NG",
+            "Value": 2
+        },
+        {
+            "Key": "電動拖板車OK",
+            "Value": 5
+        },
+        {
+            "Key": "電動拖板車NG",
+            "Value": 0
+        },
+        {
+            "Key": "rtacc",
+            "Value": 0
+        }
+    ],
+    "l8bewt": [
+        {
+            "ticket_id": "EWTL8B2500718",
+            "status": "OUT"
+        },
+        {
+            "ticket_id": "EWTC4A2500149",
+            "status": "IN"
+        },
+        {
+            "ticket_id": "EWTL8B2500735",
+            "status": "OUT"
+        },
+        {
+            "ticket_id": "EWTL8B2500661",
+            "status": "OUT"
+        },
+        {
+            "ticket_id": "EWTL8B2500633",
+            "status": "OUT"
+        },
+        {
+            "ticket_id": "EWTL8B2500714",
+            "status": "OUT"
+        },
+        {
+            "ticket_id": "EWTC5E2500286",
+            "status": "IN"
+        },
+        {
+            "ticket_id": "EWTC5E2500268",
+            "status": "IN"
+        },
+        {
+            "ticket_id": "EWTL8B2500747",
+            "status": "OUT"
+        },
+        {
+            "ticket_id": "EWTL8B2500748",
+            "status": "OUT"
+        },
+        {
+            "ticket_id": "EWTL8B2500749",
+            "status": "OUT"
+        },
+        {
+            "ticket_id": "EWTL7A2500411",
+            "status": "IN"
+        },
+        {
+            "ticket_id": "EWTL8B2500731",
+            "status": "OUT"
+        },
+        {
+            "ticket_id": "EWTL8B2500600",
+            "status": "OUT"
+        },
+        {
+            "ticket_id": "EWTL8B2500605",
+            "status": "OUT"
+        }
+    ]
+}
