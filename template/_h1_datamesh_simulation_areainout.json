@@ -50,7 +50,7 @@
             "ttl": 120
         },
         {
-            "area": "收待",
+            "area": "待驗材",
             "light": "green",
             "count": 0,
             "count_35": 0,
@@ -756,73 +756,73 @@
             "count": 1
         },
         {
-            "area": "材料特",
+            "area": "實驗材",
             "inout": "IN",
             "req_day": 1,
             "count": 23
         },
         {
-            "area": "材料特",
+            "area": "實驗材",
             "inout": "OUT",
             "req_day": 1,
             "count": 18
         },
         {
-            "area": "材料特",
+            "area": "實驗材",
             "inout": "IN",
             "req_day": 2,
             "count": 0
         },
         {
-            "area": "材料特",
+            "area": "實驗材",
             "inout": "OUT",
             "req_day": 2,
             "count": 8
         },
         {
-            "area": "材料特",
+            "area": "實驗材",
             "inout": "IN",
             "req_day": 3,
             "count": 87
         },
         {
-            "area": "材料特",
+            "area": "實驗材",
             "inout": "OUT",
             "req_day": 3,
             "count": 37
         },
         {
-            "area": "材料特",
+            "area": "實驗材",
             "inout": "IN",
             "req_day": 4,
             "count": 14
         },
         {
-            "area": "材料特",
+            "area": "實驗材",
             "inout": "OUT",
             "req_day": 4,
             "count": 28
         },
         {
-            "area": "材料特",
+            "area": "實驗材",
             "inout": "IN",
             "req_day": 5,
             "count": 21
         },
         {
-            "area": "材料特",
+            "area": "實驗材",
             "inout": "OUT",
             "req_day": 5,
             "count": 26
         },
         {
-            "area": "材料特",
+            "area": "實驗材",
             "inout": "IN",
             "req_day": 6,
             "count": 36
         },
         {
-            "area": "材料特",
+            "area": "實驗材",
             "inout": "OUT",
             "req_day": 6,
             "count": 15
