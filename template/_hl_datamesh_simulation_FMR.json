@@ -1,0 +1,120 @@
+{
+	"code": "0",
+	"data": [
+		{
+			"battery": "84",
+			"cellVoltage": [
+				{
+					"cellVoltage1": "0.0",
+					"cellVoltage10": "0.0",
+					"cellVoltage11": "0.0",
+					"cellVoltage12": "0.0",
+					"cellVoltage13": "0.0",
+					"cellVoltage14": "0.0",
+					"cellVoltage15": "0.0",
+					"cellVoltage16": "0.0",
+					"cellVoltage17": "0.0",
+					"cellVoltage18": "0.0",
+					"cellVoltage19": "0.0",
+					"cellVoltage2": "0.0",
+					"cellVoltage20": "0.0",
+					"cellVoltage21": "0.0",
+					"cellVoltage22": "0.0",
+					"cellVoltage3": "0.0",
+					"cellVoltage4": "0.0",
+					"cellVoltage5": "0.0",
+					"cellVoltage6": "0.0",
+					"cellVoltage7": "0.0",
+					"cellVoltage8": "0.0",
+					"cellVoltage9": "0.0"
+				}
+			],
+			"exclType": "0",
+			"forkLiftInfo": {
+				"ctnrType": "3",
+				"liftHeight": "85",
+				"liftStatus": "0",
+				"loadStatus": "0"
+			},
+			"inputCur": "0",
+			"mapCode": "",
+			"online": true,
+			"outCur": "0.0",
+			"path": [
+				"[266306,89835,180]"
+			],
+			"podDir": "",
+			"posX": "266306",
+			"posY": "89835",
+			"pvDetect": "0",
+			"robotCode": "8888",
+			"robotDir": "180",
+			"robotIp": "192.168.22.202",
+			"status": "4",
+			"stop": "0",
+			"temperatureLow": "0.0",
+			"temperatureOne": "0.0",
+			"timestamp": 0,
+			"voltage": "0.0"
+		},
+		{
+			"battery": "84",
+			"cellVoltage": [
+				{
+					"cellVoltage1": "0.0",
+					"cellVoltage10": "0.0",
+					"cellVoltage11": "0.0",
+					"cellVoltage12": "0.0",
+					"cellVoltage13": "0.0",
+					"cellVoltage14": "0.0",
+					"cellVoltage15": "0.0",
+					"cellVoltage16": "0.0",
+					"cellVoltage17": "0.0",
+					"cellVoltage18": "0.0",
+					"cellVoltage19": "0.0",
+					"cellVoltage2": "0.0",
+					"cellVoltage20": "0.0",
+					"cellVoltage21": "0.0",
+					"cellVoltage22": "0.0",
+					"cellVoltage3": "0.0",
+					"cellVoltage4": "0.0",
+					"cellVoltage5": "0.0",
+					"cellVoltage6": "0.0",
+					"cellVoltage7": "0.0",
+					"cellVoltage8": "0.0",
+					"cellVoltage9": "0.0"
+				}
+			],
+			"exclType": "0",
+			"forkLiftInfo": {
+				"ctnrType": "3",
+				"liftHeight": "300", 
+				"liftStatus": "0",
+				"loadStatus": "1" 
+			},
+			"inputCur": "0",
+			"mapCode": "",
+			"online": true,
+			"outCur": "0.0",
+			"path": [
+				"[250904,110056,180]"
+			],
+			"podDir": "",
+			"posX": "250904",
+			"posY": "110056",
+			"pvDetect": "0",
+			"robotCode": "8889",
+			"robotDir": "180",
+			"robotIp": "192.168.22.202",
+			"status": "4",
+			"stop": "0",
+			"temperatureLow": "0.0",
+			"temperatureOne": "0.0",
+			"timestamp": 0,
+			"voltage": "0.0"
+		}
+	],
+	"interrupt": false,
+	"message": "成功",
+	"reqCode": "1"
+}

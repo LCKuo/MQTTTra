@@ -1,0 +1,1000 @@
+[
+    {
+        "id": "670faf1ccef76851",
+        "type": "tab",
+        "label": "数据处理",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "857690de13354bfd",
+        "type": "inject",
+        "z": "670faf1ccef76851",
+        "name": "码头数据",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"VisibilityControl\":{\"9|1\":\"1\",\"9|2\":\"1\",\"9|3\":\"1\",\"9|4\":\"1\",\"9|5\":\"1\",\"9|6\":\"1\",\"9|7\":\"1\",\"9|8\":\"1\",\"9|9\":\"0\",\"9|10\":\"1\",\"9|11\":\"1\",\"9|12\":\"1\",\"9|13\":\"1\",\"9|14\":\"1\",\"9|15\":\"1\",\"9|16\":\"1\",\"9|17\":\"1\",\"9|18\":\"1\",\"9|19\":\"1\",\"9|20\":\"1\",\"9|21\":\"0\"},\"OnlineCarCount\":{\"3|OnlineCarCount\":2},\"ChildData\":[{\"ObjName\":\"Child1\",\"WharfNum\":\"9\",\"CarNum\":\"WASU4161415\",\"Company\":\"M012367299\",\"Bill\":\"M012367299\",\"Type\":0},{\"ObjName\":\"Child2\",\"WharfNum\":\"21\",\"CarNum\":\"KLE-3371\",\"Company\":\"佳世達科技股份有限公司\",\"Bill\":\"佳世達科技股份有限公司\",\"Type\":1}]}",
+        "payloadType": "json",
+        "x": 140,
+        "y": 140,
+        "wires": [
+            [
+                "9fc69c360c2804b3"
+            ]
+        ]
+    },
+    {
+        "id": "9fc69c360c2804b3",
+        "type": "function",
+        "z": "670faf1ccef76851",
+        "name": "处理码头数据",
+        "func": "let payload = msg.payload;\n\nlet ChildData = payload[\"ChildData\"];\n\nlet VisibilityControl = payload[\"VisibilityControl\"];\n\nlet tenantId = \"dae2bccbc97737dcedb1ab198d1aa164\";\nlet pier = global.get(\"pier\");\n\nlet WharfNums = [];\nlet datas = [];\nChildData.forEach( item => {\n    let WharfNum = item[\"WharfNum\"];\n    let CarNum = item[\"CarNum\"]\n    let pierObjectId = pier[WharfNum];\n\n    WharfNums.push(WharfNum);\n    const data = {\n        \"topic\": \"/DFS/\" + tenantId + \"/\" + pierObjectId,\n        \"7|1\": CarNum.length == 11 && /^\\d+$/.test(CarNum.slice(-7)) && /[a-z]/ig.test(CarNum.substring(0,3)) ? 1 : 2,\n        \"2|1\": Number(VisibilityControl[\"9|\" + WharfNum]) ^ 1\n        // \"1:2\": item\n    };\n    datas.push(data);\n});\n\nObject.keys(pier).forEach((key)=>{\n    if (!WharfNums.includes(key)){\n        const data = {\n            \"topic\": \"/DFS/\" + tenantId + \"/\" + pier[key],\n            \"7|1\": 0,\n            \"2|1\": 0\n        };\n        datas.push(data);\n    }\n})\n\n\ndatas.push({\n    \"topic\": \"/DFS/dae2bccbc97737dcedb1ab198d1aa164/fef1bf470faa54fdacf49c8b2c95cdf4\",\n    \"1|2\": ChildData\n})\nmsg.payload = datas;\nmsg.topic = \"\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 140,
+        "wires": [
+            [
+                "90650a3d24bf54fa",
+                "a83941707542b155"
+            ]
+        ]
+    },
+    {
+        "id": "90650a3d24bf54fa",
+        "type": "split",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 850,
+        "y": 280,
+        "wires": [
+            [
+                "a9e2c65e40ffcff4",
+                "4c077982cfea1566"
+            ]
+        ]
+    },
+    {
+        "id": "4c077982cfea1566",
+        "type": "function",
+        "z": "670faf1ccef76851",
+        "name": "设置topic",
+        "func": "msg.topic = msg.payload[\"topic\"]\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1100,
+        "y": 460,
+        "wires": [
+            [
+                "48d9561737287b9f",
+                "9655c871a02c2d1b"
+            ]
+        ]
+    },
+    {
+        "id": "48d9561737287b9f",
+        "type": "mqtt out",
+        "z": "670faf1ccef76851",
+        "name": "发送unity消息",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "64cc364b6f4e4d02",
+        "x": 1340,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "4c982bcce7ea5716",
+        "type": "inject",
+        "z": "670faf1ccef76851",
+        "name": "FMR 数据",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[{\"stock\":[{\"all\":\" 630\",\"occupy\":\"  19\",\"empty\":\" 611\"}],\"plt\":[{\"pos\":\"HL0101\",\"ctnr_code\":\"S0001\",\"ctnr_typ\":1,\"pod_dir\":\"0\",\"x\":220794,\"y\":111132},{\"pos\":\"HL0102\",\"ctnr_code\":\"S0002\",\"ctnr_typ\":2,\"pod_dir\":\"0\",\"x\":222194,\"y\":111132},{\"pos\":\"HL0103\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":223594,\"y\":111132},{\"pos\":\"HL0104\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224994,\"y\":111132},{\"pos\":\"HL0105\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":226394,\"y\":111132},{\"pos\":\"HL0106\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229194,\"y\":111132},{\"pos\":\"HL0107\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":230594,\"y\":111132},{\"pos\":\"HL0108\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231994,\"y\":111132},{\"pos\":\"HL0109\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":233394,\"y\":111132},{\"pos\":\"HL0110\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234794,\"y\":111132},{\"pos\":\"HL0111\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":237594,\"y\":111132},{\"pos\":\"HL0112\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238994,\"y\":111132},{\"pos\":\"HL0113\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":240394,\"y\":111132},{\"pos\":\"HL0114\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241794,\"y\":111132},{\"pos\":\"HL0115\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243194,\"y\":111132},{\"pos\":\"HL0116\",\"ctnr_code\":\"S0003\",\"ctnr_typ\":\"3\",\"pod_dir\":\"0\",\"x\":245994,\"y\":111132},{\"pos\":\"HL0117\",\"ctnr_code\":\"S0004\",\"ctnr_typ\":\"4\",\"pod_dir\":\"0\",\"x\":247394,\"y\":111132},{\"pos\":\"HL0118\",\"ctnr_code\":\"S0005\",\"ctnr_typ\":\"5\",\"pod_dir\":\"0\",\"x\":248794,\"y\":111132},{\"pos\":\"HL0119\",\"ctnr_code\":\"S0006\",\"ctnr_typ\":\"6\",\"pod_dir\":\"0\",\"x\":250194,\"y\":111132},{\"pos\":\"HL0120\",\"ctnr_code\":\"S0123\",\"ctnr_typ\":\"5\",\"pod_dir\":\"0\",\"x\":251594,\"y\":111132},{\"pos\":\"HL0121\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":254394,\"y\":111132},{\"pos\":\"HL0122\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255794,\"y\":111132},{\"pos\":\"HL0123\",\"ctnr_code\":\"S0133\",\"ctnr_typ\":\"5\",\"pod_dir\":\"0\",\"x\":257194,\"y\":111132},{\"pos\":\"HL0124\",\"ctnr_code\":\"S0134\",\"ctnr_typ\":\"5\",\"pod_dir\":\"0\",\"x\":258594,\"y\":111132},{\"pos\":\"HL0125\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259994,\"y\":111132},{\"pos\":\"HL0126\",\"ctnr_code\":\"S0015\",\"ctnr_typ\":\"5\",\"pod_dir\":\"0\",\"x\":262794,\"y\":111132},{\"pos\":\"HL0127\",\"ctnr_code\":\"S0014\",\"ctnr_typ\":\"4\",\"pod_dir\":\"0\",\"x\":264194,\"y\":111132},{\"pos\":\"HL0128\",\"ctnr_code\":\"S0013\",\"ctnr_typ\":\"3\",\"pod_dir\":\"0\",\"x\":265594,\"y\":111132},{\"pos\":\"HL0129\",\"ctnr_code\":\"S0012\",\"ctnr_typ\":\"2\",\"pod_dir\":\"0\",\"x\":266994,\"y\":111132},{\"pos\":\"HL0130\",\"ctnr_code\":\"S0011\",\"ctnr_typ\":\"1\",\"pod_dir\":\"0\",\"x\":268394,\"y\":111132},{\"pos\":\"HL0201\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220094,\"y\":108159},{\"pos\":\"HL0202\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":221494,\"y\":108159},{\"pos\":\"HL0203\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222894,\"y\":108159},{\"pos\":\"HL0204\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224294,\"y\":108159},{\"pos\":\"HL0205\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":225694,\"y\":108159},{\"pos\":\"HL0206\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227094,\"y\":108159},{\"pos\":\"HL0207\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":228494,\"y\":108159},{\"pos\":\"HL0208\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229894,\"y\":108159},{\"pos\":\"HL0209\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231294,\"y\":108159},{\"pos\":\"HL0210\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232694,\"y\":108159},{\"pos\":\"HL0211\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234094,\"y\":108159},{\"pos\":\"HL0212\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":235494,\"y\":108159},{\"pos\":\"HL0213\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":236894,\"y\":108159},{\"pos\":\"HL0214\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238294,\"y\":108159},{\"pos\":\"HL0215\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239694,\"y\":108159},{\"pos\":\"HL0216\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241094,\"y\":108159},{\"pos\":\"HL0217\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242494,\"y\":108159},{\"pos\":\"HL0218\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243894,\"y\":108159},{\"pos\":\"HL0219\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245294,\"y\":108159},{\"pos\":\"HL0220\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":246694,\"y\":108159},{\"pos\":\"HL0221\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248094,\"y\":108159},{\"pos\":\"HL0222\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249494,\"y\":108159},{\"pos\":\"HL0223\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250894,\"y\":108159},{\"pos\":\"HL0224\",\"ctnr_code\":\"S0001\",\"ctnr_typ\":\"1\",\"pod_dir\":\"0\",\"x\":252294,\"y\":108159},{\"pos\":\"HL0225\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":253694,\"y\":108159},{\"pos\":\"HL0226\",\"ctnr_code\":\"S0002\",\"ctnr_typ\":\"2\",\"pod_dir\":\"0\",\"x\":255094,\"y\":108159},{\"pos\":\"HL0227\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256494,\"y\":108159},{\"pos\":\"HL0228\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257894,\"y\":108159},{\"pos\":\"HL0229\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259294,\"y\":108159},{\"pos\":\"HL0230\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":260694,\"y\":108159},{\"pos\":\"HL0231\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262094,\"y\":108159},{\"pos\":\"HL0232\",\"ctnr_code\":\"S0021\",\"ctnr_typ\":\"5\",\"pod_dir\":\"0\",\"x\":263494,\"y\":108159},{\"pos\":\"HL0233\",\"ctnr_code\":\"S0022\",\"ctnr_typ\":\"5\",\"pod_dir\":\"0\",\"x\":264894,\"y\":108159},{\"pos\":\"HL0234\",\"ctnr_code\":\"S0023\",\"ctnr_typ\":\"5\",\"pod_dir\":\"0\",\"x\":266294,\"y\":108159},{\"pos\":\"HL0235\",\"ctnr_code\":\"S0024\",\"ctnr_typ\":\"5\",\"pod_dir\":\"0\",\"x\":267694,\"y\":108159},{\"pos\":\"HL0236\",\"ctnr_code\":\"S0025\",\"ctnr_typ\":\"5\",\"pod_dir\":\"0\",\"x\":269094,\"y\":108159},{\"pos\":\"HL0301\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220094,\"y\":104689},{\"pos\":\"HL0302\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":221494,\"y\":104689},{\"pos\":\"HL0303\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222894,\"y\":104689},{\"pos\":\"HL0304\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224294,\"y\":104689},{\"pos\":\"HL0305\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":225694,\"y\":104689},{\"pos\":\"HL0306\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227094,\"y\":104689},{\"pos\":\"HL0307\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":228494,\"y\":104689},{\"pos\":\"HL0308\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229894,\"y\":104689},{\"pos\":\"HL0309\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231294,\"y\":104689},{\"pos\":\"HL0310\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232694,\"y\":104689},{\"pos\":\"HL0311\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234094,\"y\":104689},{\"pos\":\"HL0312\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":235494,\"y\":104689},{\"pos\":\"HL0313\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":236894,\"y\":104689},{\"pos\":\"HL0314\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238294,\"y\":104689},{\"pos\":\"HL0315\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239694,\"y\":104689},{\"pos\":\"HL0316\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241094,\"y\":104689},{\"pos\":\"HL0317\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242494,\"y\":104689},{\"pos\":\"HL0318\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243894,\"y\":104689},{\"pos\":\"HL0319\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245294,\"y\":104689},{\"pos\":\"HL0320\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":246694,\"y\":104689},{\"pos\":\"HL0321\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248094,\"y\":104689},{\"pos\":\"HL0322\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249494,\"y\":104689},{\"pos\":\"HL0323\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250894,\"y\":104689},{\"pos\":\"HL0324\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":252294,\"y\":104689},{\"pos\":\"HL0325\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":253694,\"y\":104689},{\"pos\":\"HL0326\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255094,\"y\":104689},{\"pos\":\"HL0327\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256494,\"y\":104689},{\"pos\":\"HL0328\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257894,\"y\":104689},{\"pos\":\"HL0329\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259294,\"y\":104689},{\"pos\":\"HL0330\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":260694,\"y\":104689},{\"pos\":\"HL0331\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262094,\"y\":104689},{\"pos\":\"HL0332\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":263494,\"y\":104689},{\"pos\":\"HL0333\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264894,\"y\":104689},{\"pos\":\"HL0334\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266294,\"y\":104689},{\"pos\":\"HL0335\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":267694,\"y\":104689},{\"pos\":\"HL0336\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":269094,\"y\":104689},{\"pos\":\"HL0401\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220094,\"y\":101649},{\"pos\":\"HL0402\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":221494,\"y\":101649},{\"pos\":\"HL0403\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222894,\"y\":101649},{\"pos\":\"HL0404\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224294,\"y\":101649},{\"pos\":\"HL0405\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":225694,\"y\":101649},{\"pos\":\"HL0406\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227094,\"y\":101649},{\"pos\":\"HL0407\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":228494,\"y\":101649},{\"pos\":\"HL0408\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229894,\"y\":101649},{\"pos\":\"HL0409\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231294,\"y\":101649},{\"pos\":\"HL0410\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232694,\"y\":101649},{\"pos\":\"HL0411\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234094,\"y\":101649},{\"pos\":\"HL0412\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":235494,\"y\":101649},{\"pos\":\"HL0413\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":236894,\"y\":101649},{\"pos\":\"HL0414\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238294,\"y\":101649},{\"pos\":\"HL0415\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239694,\"y\":101649},{\"pos\":\"HL0416\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241094,\"y\":101649},{\"pos\":\"HL0417\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242494,\"y\":101649},{\"pos\":\"HL0418\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243894,\"y\":101649},{\"pos\":\"HL0419\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245294,\"y\":101649},{\"pos\":\"HL0420\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":246694,\"y\":101649},{\"pos\":\"HL0421\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248094,\"y\":101649},{\"pos\":\"HL0422\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249494,\"y\":101649},{\"pos\":\"HL0423\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250894,\"y\":101649},{\"pos\":\"HL0424\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":252294,\"y\":101649},{\"pos\":\"HL0425\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":253694,\"y\":101649},{\"pos\":\"HL0426\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255094,\"y\":101649},{\"pos\":\"HL0427\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256494,\"y\":101649},{\"pos\":\"HL0428\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257894,\"y\":101649},{\"pos\":\"HL0429\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259294,\"y\":101649},{\"pos\":\"HL0430\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":260694,\"y\":101649},{\"pos\":\"HL0431\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262094,\"y\":101649},{\"pos\":\"HL0432\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":263494,\"y\":101649},{\"pos\":\"HL0433\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264894,\"y\":101649},{\"pos\":\"HL0434\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266294,\"y\":101649},{\"pos\":\"HL0435\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":267694,\"y\":101649},{\"pos\":\"HL0436\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":269094,\"y\":101649},{\"pos\":\"HL0501\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220794,\"y\":99083},{\"pos\":\"HL0502\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222194,\"y\":99083},{\"pos\":\"HL0503\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":223594,\"y\":99083},{\"pos\":\"HL0504\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224994,\"y\":99083},{\"pos\":\"HL0505\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":226394,\"y\":99083},{\"pos\":\"HL0506\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229194,\"y\":99083},{\"pos\":\"HL0507\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":230594,\"y\":99083},{\"pos\":\"HL0508\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231994,\"y\":99083},{\"pos\":\"HL0509\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":233394,\"y\":99083},{\"pos\":\"HL0510\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234794,\"y\":99083},{\"pos\":\"HL0511\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":237594,\"y\":99083},{\"pos\":\"HL0512\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238994,\"y\":99083},{\"pos\":\"HL0513\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":240394,\"y\":99083},{\"pos\":\"HL0514\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241794,\"y\":99083},{\"pos\":\"HL0515\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243194,\"y\":99083},{\"pos\":\"HL0516\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245994,\"y\":99083},{\"pos\":\"HL0517\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":247394,\"y\":99083},{\"pos\":\"HL0518\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248794,\"y\":99083},{\"pos\":\"HL0519\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250194,\"y\":99083},{\"pos\":\"HL0520\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":251594,\"y\":99083},{\"pos\":\"HL0521\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":254394,\"y\":99083},{\"pos\":\"HL0522\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255794,\"y\":99083},{\"pos\":\"HL0523\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257194,\"y\":99083},{\"pos\":\"HL0524\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":258594,\"y\":99083},{\"pos\":\"HL0525\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259994,\"y\":99083},{\"pos\":\"HL0526\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262794,\"y\":99083},{\"pos\":\"HL0527\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264194,\"y\":99083},{\"pos\":\"HL0528\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":265594,\"y\":99083},{\"pos\":\"HL0529\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266994,\"y\":99083},{\"pos\":\"HL0530\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":268394,\"y\":99083},{\"pos\":\"HL0601\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220094,\"y\":94260},{\"pos\":\"HL0602\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":221494,\"y\":94260},{\"pos\":\"HL0603\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222894,\"y\":94260},{\"pos\":\"HL0604\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224294,\"y\":94260},{\"pos\":\"HL0605\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":225694,\"y\":94260},{\"pos\":\"HL0606\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227094,\"y\":94260},{\"pos\":\"HL0607\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":228494,\"y\":94260},{\"pos\":\"HL0608\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229894,\"y\":94260},{\"pos\":\"HL0609\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231294,\"y\":94260},{\"pos\":\"HL0610\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232694,\"y\":94260},{\"pos\":\"HL0611\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234094,\"y\":94260},{\"pos\":\"HL0612\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":235494,\"y\":94260},{\"pos\":\"HL0613\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":236894,\"y\":94260},{\"pos\":\"HL0614\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238294,\"y\":94260},{\"pos\":\"HL0615\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239694,\"y\":94260},{\"pos\":\"HL0616\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241094,\"y\":94260},{\"pos\":\"HL0617\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242494,\"y\":94260},{\"pos\":\"HL0618\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243894,\"y\":94260},{\"pos\":\"HL0619\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245294,\"y\":94260},{\"pos\":\"HL0620\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":246694,\"y\":94260},{\"pos\":\"HL0621\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248094,\"y\":94260},{\"pos\":\"HL0622\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249494,\"y\":94260},{\"pos\":\"HL0623\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250894,\"y\":94260},{\"pos\":\"HL0624\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":252294,\"y\":94260},{\"pos\":\"HL0625\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":253694,\"y\":94260},{\"pos\":\"HL0626\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255094,\"y\":94260},{\"pos\":\"HL0627\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256494,\"y\":94260},{\"pos\":\"HL0628\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257894,\"y\":94260},{\"pos\":\"HL0629\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259294,\"y\":94260},{\"pos\":\"HL0630\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":260694,\"y\":94260},{\"pos\":\"HL0631\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262094,\"y\":94260},{\"pos\":\"HL0632\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":263494,\"y\":94260},{\"pos\":\"HL0633\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264894,\"y\":94260},{\"pos\":\"HL0634\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266294,\"y\":94260},{\"pos\":\"HL0635\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":267694,\"y\":94260},{\"pos\":\"HL0636\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":269094,\"y\":94260},{\"pos\":\"HL0701\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220094,\"y\":92640},{\"pos\":\"HL0702\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":221494,\"y\":92640},{\"pos\":\"HL0703\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222894,\"y\":92640},{\"pos\":\"HL0704\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224294,\"y\":92640},{\"pos\":\"HL0705\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":225694,\"y\":92640},{\"pos\":\"HL0706\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227094,\"y\":92640},{\"pos\":\"HL0707\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":228494,\"y\":92640},{\"pos\":\"HL0708\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229894,\"y\":92640},{\"pos\":\"HL0709\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231294,\"y\":92640},{\"pos\":\"HL0710\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232694,\"y\":92640},{\"pos\":\"HL0711\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234094,\"y\":92640},{\"pos\":\"HL0712\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":235494,\"y\":92640},{\"pos\":\"HL0713\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":236894,\"y\":92640},{\"pos\":\"HL0714\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238294,\"y\":92640},{\"pos\":\"HL0715\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239694,\"y\":92640},{\"pos\":\"HL0716\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241094,\"y\":92640},{\"pos\":\"HL0717\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242494,\"y\":92640},{\"pos\":\"HL0718\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243894,\"y\":92640},{\"pos\":\"HL0719\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245294,\"y\":92640},{\"pos\":\"HL0720\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":246694,\"y\":92640},{\"pos\":\"HL0721\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248094,\"y\":92640},{\"pos\":\"HL0722\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249494,\"y\":92640},{\"pos\":\"HL0723\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250894,\"y\":92640},{\"pos\":\"HL0724\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":252294,\"y\":92640},{\"pos\":\"HL0725\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":253694,\"y\":92640},{\"pos\":\"HL0726\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255094,\"y\":92640},{\"pos\":\"HL0727\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256494,\"y\":92640},{\"pos\":\"HL0728\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257894,\"y\":92640},{\"pos\":\"HL0729\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259294,\"y\":92640},{\"pos\":\"HL0730\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":260694,\"y\":92640},{\"pos\":\"HL0731\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262094,\"y\":92640},{\"pos\":\"HL0732\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":263494,\"y\":92640},{\"pos\":\"HL0733\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264894,\"y\":92640},{\"pos\":\"HL0734\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266294,\"y\":92640},{\"pos\":\"HL0735\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":267694,\"y\":92640},{\"pos\":\"HL0736\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":269094,\"y\":92640},{\"pos\":\"HL0801\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220094,\"y\":87700},{\"pos\":\"HL0802\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":221494,\"y\":87700},{\"pos\":\"HL0803\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222894,\"y\":87700},{\"pos\":\"HL0804\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224294,\"y\":87700},{\"pos\":\"HL0805\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":225694,\"y\":87700},{\"pos\":\"HL0806\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227094,\"y\":87700},{\"pos\":\"HL0807\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":228494,\"y\":87700},{\"pos\":\"HL0808\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229894,\"y\":87700},{\"pos\":\"HL0809\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231294,\"y\":87700},{\"pos\":\"HL0810\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232694,\"y\":87700},{\"pos\":\"HL0811\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234094,\"y\":87700},{\"pos\":\"HL0812\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":235494,\"y\":87700},{\"pos\":\"HL0813\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":236894,\"y\":87700},{\"pos\":\"HL0814\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238294,\"y\":87700},{\"pos\":\"HL0815\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239694,\"y\":87700},{\"pos\":\"HL0816\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241094,\"y\":87700},{\"pos\":\"HL0817\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242494,\"y\":87700},{\"pos\":\"HL0818\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243894,\"y\":87700},{\"pos\":\"HL0819\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245294,\"y\":87700},{\"pos\":\"HL0820\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":246694,\"y\":87700},{\"pos\":\"HL0821\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248094,\"y\":87700},{\"pos\":\"HL0822\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249494,\"y\":87700},{\"pos\":\"HL0823\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250894,\"y\":87700},{\"pos\":\"HL0824\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":252294,\"y\":87700},{\"pos\":\"HL0825\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":253694,\"y\":87700},{\"pos\":\"HL0826\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255094,\"y\":87700},{\"pos\":\"HL0827\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256494,\"y\":87700},{\"pos\":\"HL0828\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257894,\"y\":87700},{\"pos\":\"HL0829\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259294,\"y\":87700},{\"pos\":\"HL0830\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":260694,\"y\":87700},{\"pos\":\"HL0831\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262094,\"y\":87700},{\"pos\":\"HL0832\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":263494,\"y\":87700},{\"pos\":\"HL0833\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264894,\"y\":87700},{\"pos\":\"HL0834\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266294,\"y\":87700},{\"pos\":\"HL0835\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":267694,\"y\":87700},{\"pos\":\"HL0836\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":269094,\"y\":87700},{\"pos\":\"HL0901\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220794,\"y\":86083},{\"pos\":\"HL0902\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222194,\"y\":86083},{\"pos\":\"HL0903\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":223594,\"y\":86083},{\"pos\":\"HL0904\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224994,\"y\":86083},{\"pos\":\"HL0905\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":226394,\"y\":86083},{\"pos\":\"HL0906\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229194,\"y\":86083},{\"pos\":\"HL0907\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":230594,\"y\":86083},{\"pos\":\"HL0908\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231994,\"y\":86083},{\"pos\":\"HL0909\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":233394,\"y\":86083},{\"pos\":\"HL0910\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234794,\"y\":86083},{\"pos\":\"HL0911\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":237594,\"y\":86083},{\"pos\":\"HL0912\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238994,\"y\":86083},{\"pos\":\"HL0913\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":240394,\"y\":86083},{\"pos\":\"HL0914\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241794,\"y\":86083},{\"pos\":\"HL0915\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243194,\"y\":86083},{\"pos\":\"HL0916\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245994,\"y\":86083},{\"pos\":\"HL0917\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":247394,\"y\":86083},{\"pos\":\"HL0918\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248794,\"y\":86083},{\"pos\":\"HL0919\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250194,\"y\":86083},{\"pos\":\"HL0920\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":251594,\"y\":86083},{\"pos\":\"HL0921\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":254394,\"y\":86083},{\"pos\":\"HL0922\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255794,\"y\":86083},{\"pos\":\"HL0923\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257194,\"y\":86083},{\"pos\":\"HL0924\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":258594,\"y\":86083},{\"pos\":\"HL0925\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259994,\"y\":86083},{\"pos\":\"HL0926\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262794,\"y\":86083},{\"pos\":\"HL0927\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264194,\"y\":86083},{\"pos\":\"HL0928\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":265594,\"y\":86083},{\"pos\":\"HL0929\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266994,\"y\":86083},{\"pos\":\"HL0930\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":268394,\"y\":86083},{\"pos\":\"HL1001\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220094,\"y\":81260},{\"pos\":\"HL1002\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":221494,\"y\":81260},{\"pos\":\"HL1003\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222894,\"y\":81260},{\"pos\":\"HL1004\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224294,\"y\":81260},{\"pos\":\"HL1005\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":225694,\"y\":81260},{\"pos\":\"HL1006\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227094,\"y\":81260},{\"pos\":\"HL1007\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":228494,\"y\":81260},{\"pos\":\"HL1008\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229894,\"y\":81260},{\"pos\":\"HL1009\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231294,\"y\":81260},{\"pos\":\"HL1010\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232694,\"y\":81260},{\"pos\":\"HL1011\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234094,\"y\":81260},{\"pos\":\"HL1012\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":235494,\"y\":81260},{\"pos\":\"HL1013\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":236894,\"y\":81260},{\"pos\":\"HL1014\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238294,\"y\":81260},{\"pos\":\"HL1015\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239694,\"y\":81260},{\"pos\":\"HL1016\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241094,\"y\":81260},{\"pos\":\"HL1017\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242494,\"y\":81260},{\"pos\":\"HL1018\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243894,\"y\":81260},{\"pos\":\"HL1019\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245294,\"y\":81260},{\"pos\":\"HL1020\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":246694,\"y\":81260},{\"pos\":\"HL1021\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248094,\"y\":81260},{\"pos\":\"HL1022\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249494,\"y\":81260},{\"pos\":\"HL1023\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250894,\"y\":81260},{\"pos\":\"HL1024\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":252294,\"y\":81260},{\"pos\":\"HL1025\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":253694,\"y\":81260},{\"pos\":\"HL1026\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255094,\"y\":81260},{\"pos\":\"HL1027\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256494,\"y\":81260},{\"pos\":\"HL1028\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257894,\"y\":81260},{\"pos\":\"HL1029\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259294,\"y\":81260},{\"pos\":\"HL1030\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":260694,\"y\":81260},{\"pos\":\"HL1031\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262094,\"y\":81260},{\"pos\":\"HL1032\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":263494,\"y\":81260},{\"pos\":\"HL1033\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264894,\"y\":81260},{\"pos\":\"HL1034\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266294,\"y\":81260},{\"pos\":\"HL1035\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":267694,\"y\":81260},{\"pos\":\"HL1036\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":269094,\"y\":81260},{\"pos\":\"HL1101\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220094,\"y\":79640},{\"pos\":\"HL1102\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":221494,\"y\":79640},{\"pos\":\"HL1103\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222894,\"y\":79640},{\"pos\":\"HL1104\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224294,\"y\":79640},{\"pos\":\"HL1105\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":225694,\"y\":79640},{\"pos\":\"HL1106\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227094,\"y\":79640},{\"pos\":\"HL1107\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":228494,\"y\":79640},{\"pos\":\"HL1108\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229894,\"y\":79640},{\"pos\":\"HL1109\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231294,\"y\":79640},{\"pos\":\"HL1110\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232694,\"y\":79640},{\"pos\":\"HL1111\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234094,\"y\":79640},{\"pos\":\"HL1112\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":235494,\"y\":79640},{\"pos\":\"HL1113\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":236894,\"y\":79640},{\"pos\":\"HL1114\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238294,\"y\":79640},{\"pos\":\"HL1115\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239694,\"y\":79640},{\"pos\":\"HL1116\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241094,\"y\":79640},{\"pos\":\"HL1117\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242494,\"y\":79640},{\"pos\":\"HL1118\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243894,\"y\":79640},{\"pos\":\"HL1119\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245294,\"y\":79640},{\"pos\":\"HL1120\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":246694,\"y\":79640},{\"pos\":\"HL1121\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248094,\"y\":79640},{\"pos\":\"HL1122\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249494,\"y\":79640},{\"pos\":\"HL1123\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250894,\"y\":79640},{\"pos\":\"HL1124\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":252294,\"y\":79640},{\"pos\":\"HL1125\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":253694,\"y\":79640},{\"pos\":\"HL1126\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255094,\"y\":79640},{\"pos\":\"HL1127\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256494,\"y\":79640},{\"pos\":\"HL1128\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257894,\"y\":79640},{\"pos\":\"HL1129\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259294,\"y\":79640},{\"pos\":\"HL1130\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":260694,\"y\":79640},{\"pos\":\"HL1131\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262094,\"y\":79640},{\"pos\":\"HL1132\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":263494,\"y\":79640},{\"pos\":\"HL1133\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264894,\"y\":79640},{\"pos\":\"HL1134\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266294,\"y\":79640},{\"pos\":\"HL1135\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":267694,\"y\":79640},{\"pos\":\"HL1136\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":269094,\"y\":79640},{\"pos\":\"HL1201\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220094,\"y\":74700},{\"pos\":\"HL1202\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":221494,\"y\":74700},{\"pos\":\"HL1203\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222894,\"y\":74700},{\"pos\":\"HL1204\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224294,\"y\":74700},{\"pos\":\"HL1205\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":225694,\"y\":74700},{\"pos\":\"HL1206\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227094,\"y\":74700},{\"pos\":\"HL1207\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":228494,\"y\":74700},{\"pos\":\"HL1208\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229894,\"y\":74700},{\"pos\":\"HL1209\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231294,\"y\":74700},{\"pos\":\"HL1210\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232694,\"y\":74700},{\"pos\":\"HL1211\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234094,\"y\":74700},{\"pos\":\"HL1212\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":235494,\"y\":74700},{\"pos\":\"HL1213\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":236894,\"y\":74700},{\"pos\":\"HL1214\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238294,\"y\":74700},{\"pos\":\"HL1215\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239694,\"y\":74700},{\"pos\":\"HL1216\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241094,\"y\":74700},{\"pos\":\"HL1217\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242494,\"y\":74700},{\"pos\":\"HL1218\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243894,\"y\":74700},{\"pos\":\"HL1219\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245294,\"y\":74700},{\"pos\":\"HL1220\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":246694,\"y\":74700},{\"pos\":\"HL1221\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248094,\"y\":74700},{\"pos\":\"HL1222\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249494,\"y\":74700},{\"pos\":\"HL1223\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250894,\"y\":74700},{\"pos\":\"HL1224\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":252294,\"y\":74700},{\"pos\":\"HL1225\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":253694,\"y\":74700},{\"pos\":\"HL1226\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255094,\"y\":74700},{\"pos\":\"HL1227\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256494,\"y\":74700},{\"pos\":\"HL1228\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257894,\"y\":74700},{\"pos\":\"HL1229\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259294,\"y\":74700},{\"pos\":\"HL1230\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":260694,\"y\":74700},{\"pos\":\"HL1231\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262094,\"y\":74700},{\"pos\":\"HL1232\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":263494,\"y\":74700},{\"pos\":\"HL1233\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264894,\"y\":74700},{\"pos\":\"HL1234\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266294,\"y\":74700},{\"pos\":\"HL1235\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":267694,\"y\":74700},{\"pos\":\"HL1236\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":269094,\"y\":74700},{\"pos\":\"HL1301\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220794,\"y\":73083},{\"pos\":\"HL1302\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222194,\"y\":73083},{\"pos\":\"HL1303\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":223594,\"y\":73083},{\"pos\":\"HL1304\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224994,\"y\":73083},{\"pos\":\"HL1305\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":226394,\"y\":73083},{\"pos\":\"HL1306\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229194,\"y\":73083},{\"pos\":\"HL1307\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":230594,\"y\":73083},{\"pos\":\"HL1308\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231994,\"y\":73083},{\"pos\":\"HL1309\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":233394,\"y\":73083},{\"pos\":\"HL1310\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234794,\"y\":73083},{\"pos\":\"HL1311\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":237594,\"y\":73083},{\"pos\":\"HL1312\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238994,\"y\":73083},{\"pos\":\"HL1313\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":240394,\"y\":73083},{\"pos\":\"HL1314\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241794,\"y\":73083},{\"pos\":\"HL1315\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243194,\"y\":73083},{\"pos\":\"HL1316\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245994,\"y\":73083},{\"pos\":\"HL1317\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":247394,\"y\":73083},{\"pos\":\"HL1318\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248794,\"y\":73083},{\"pos\":\"HL1319\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250194,\"y\":73083},{\"pos\":\"HL1320\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":251594,\"y\":73083},{\"pos\":\"HL1321\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":254394,\"y\":73083},{\"pos\":\"HL1322\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255794,\"y\":73083},{\"pos\":\"HL1323\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257194,\"y\":73083},{\"pos\":\"HL1324\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":258594,\"y\":73083},{\"pos\":\"HL1325\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259994,\"y\":73083},{\"pos\":\"HL1326\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262794,\"y\":73083},{\"pos\":\"HL1327\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264194,\"y\":73083},{\"pos\":\"HL1328\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":265594,\"y\":73083},{\"pos\":\"HL1329\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266994,\"y\":73083},{\"pos\":\"HL1330\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":268394,\"y\":73083},{\"pos\":\"HL1401\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220094,\"y\":68260},{\"pos\":\"HL1402\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":221494,\"y\":68260},{\"pos\":\"HL1403\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222894,\"y\":68260},{\"pos\":\"HL1404\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224294,\"y\":68260},{\"pos\":\"HL1405\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":225694,\"y\":68260},{\"pos\":\"HL1406\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227094,\"y\":68260},{\"pos\":\"HL1407\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":228494,\"y\":68260},{\"pos\":\"HL1408\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229894,\"y\":68260},{\"pos\":\"HL1409\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231294,\"y\":68260},{\"pos\":\"HL1410\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232694,\"y\":68260},{\"pos\":\"HL1411\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234094,\"y\":68260},{\"pos\":\"HL1412\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":235494,\"y\":68260},{\"pos\":\"HL1413\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":236894,\"y\":68260},{\"pos\":\"HL1414\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238294,\"y\":68260},{\"pos\":\"HL1415\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239694,\"y\":68260},{\"pos\":\"HL1416\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241094,\"y\":68260},{\"pos\":\"HL1417\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242494,\"y\":68260},{\"pos\":\"HL1418\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243894,\"y\":68260},{\"pos\":\"HL1419\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245294,\"y\":68260},{\"pos\":\"HL1420\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":246694,\"y\":68260},{\"pos\":\"HL1421\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248094,\"y\":68260},{\"pos\":\"HL1422\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249494,\"y\":68260},{\"pos\":\"HL1423\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250894,\"y\":68260},{\"pos\":\"HL1424\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":252294,\"y\":68260},{\"pos\":\"HL1425\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":253694,\"y\":68260},{\"pos\":\"HL1426\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255094,\"y\":68260},{\"pos\":\"HL1427\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256494,\"y\":68260},{\"pos\":\"HL1428\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257894,\"y\":68260},{\"pos\":\"HL1429\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259294,\"y\":68260},{\"pos\":\"HL1430\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":260694,\"y\":68260},{\"pos\":\"HL1431\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262094,\"y\":68260},{\"pos\":\"HL1432\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":263494,\"y\":68260},{\"pos\":\"HL1433\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264894,\"y\":68260},{\"pos\":\"HL1434\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266294,\"y\":68260},{\"pos\":\"HL1435\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":267694,\"y\":68260},{\"pos\":\"HL1436\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":269094,\"y\":68260},{\"pos\":\"HL1501\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220094,\"y\":66640},{\"pos\":\"HL1502\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":221494,\"y\":66640},{\"pos\":\"HL1503\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222894,\"y\":66640},{\"pos\":\"HL1504\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224294,\"y\":66640},{\"pos\":\"HL1505\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":225694,\"y\":66640},{\"pos\":\"HL1506\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227094,\"y\":66640},{\"pos\":\"HL1507\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":228494,\"y\":66640},{\"pos\":\"HL1508\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229894,\"y\":66640},{\"pos\":\"HL1509\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231294,\"y\":66640},{\"pos\":\"HL1510\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232694,\"y\":66640},{\"pos\":\"HL1511\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234094,\"y\":66640},{\"pos\":\"HL1512\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":235494,\"y\":66640},{\"pos\":\"HL1513\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":236894,\"y\":66640},{\"pos\":\"HL1514\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238294,\"y\":66640},{\"pos\":\"HL1515\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239694,\"y\":66640},{\"pos\":\"HL1516\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241094,\"y\":66640},{\"pos\":\"HL1517\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242494,\"y\":66640},{\"pos\":\"HL1518\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243894,\"y\":66640},{\"pos\":\"HL1519\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245294,\"y\":66640},{\"pos\":\"HL1520\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":246694,\"y\":66640},{\"pos\":\"HL1521\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248094,\"y\":66640},{\"pos\":\"HL1522\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249494,\"y\":66640},{\"pos\":\"HL1523\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250894,\"y\":66640},{\"pos\":\"HL1524\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":252294,\"y\":66640},{\"pos\":\"HL1525\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":253694,\"y\":66640},{\"pos\":\"HL1526\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255094,\"y\":66640},{\"pos\":\"HL1527\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256494,\"y\":66640},{\"pos\":\"HL1528\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257894,\"y\":66640},{\"pos\":\"HL1529\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259294,\"y\":66640},{\"pos\":\"HL1530\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":260694,\"y\":66640},{\"pos\":\"HL1531\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262094,\"y\":66640},{\"pos\":\"HL1532\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":263494,\"y\":66640},{\"pos\":\"HL1533\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264894,\"y\":66640},{\"pos\":\"HL1534\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266294,\"y\":66640},{\"pos\":\"HL1535\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":267694,\"y\":66640},{\"pos\":\"HL1536\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":269094,\"y\":66640},{\"pos\":\"HL1601\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220094,\"y\":61700},{\"pos\":\"HL1602\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":221494,\"y\":61700},{\"pos\":\"HL1603\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222894,\"y\":61700},{\"pos\":\"HL1604\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224294,\"y\":61700},{\"pos\":\"HL1605\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":225694,\"y\":61700},{\"pos\":\"HL1606\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227094,\"y\":61700},{\"pos\":\"HL1607\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":228494,\"y\":61700},{\"pos\":\"HL1608\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229894,\"y\":61700},{\"pos\":\"HL1609\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231294,\"y\":61700},{\"pos\":\"HL1610\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232694,\"y\":61700},{\"pos\":\"HL1611\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234094,\"y\":61700},{\"pos\":\"HL1612\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":235494,\"y\":61700},{\"pos\":\"HL1613\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":236894,\"y\":61700},{\"pos\":\"HL1614\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238294,\"y\":61700},{\"pos\":\"HL1615\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239694,\"y\":61700},{\"pos\":\"HL1616\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241094,\"y\":61700},{\"pos\":\"HL1617\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242494,\"y\":61700},{\"pos\":\"HL1618\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243894,\"y\":61700},{\"pos\":\"HL1619\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245294,\"y\":61700},{\"pos\":\"HL1620\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":246694,\"y\":61700},{\"pos\":\"HL1621\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248094,\"y\":61700},{\"pos\":\"HL1622\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249494,\"y\":61700},{\"pos\":\"HL1623\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250894,\"y\":61700},{\"pos\":\"HL1624\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":252294,\"y\":61700},{\"pos\":\"HL1625\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":253694,\"y\":61700},{\"pos\":\"HL1626\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255094,\"y\":61700},{\"pos\":\"HL1627\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256494,\"y\":61700},{\"pos\":\"HL1628\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257894,\"y\":61700},{\"pos\":\"HL1629\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259294,\"y\":61700},{\"pos\":\"HL1630\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":260694,\"y\":61700},{\"pos\":\"HL1631\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262094,\"y\":61700},{\"pos\":\"HL1632\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":263494,\"y\":61700},{\"pos\":\"HL1633\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264894,\"y\":61700},{\"pos\":\"HL1634\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266294,\"y\":61700},{\"pos\":\"HL1635\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":267694,\"y\":61700},{\"pos\":\"HL1636\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":269094,\"y\":61700},{\"pos\":\"HL1701\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220794,\"y\":60083},{\"pos\":\"HL1702\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222194,\"y\":60083},{\"pos\":\"HL1703\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":223594,\"y\":60083},{\"pos\":\"HL1704\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224994,\"y\":60083},{\"pos\":\"HL1705\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":226394,\"y\":60083},{\"pos\":\"HL1706\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229194,\"y\":60083},{\"pos\":\"HL1707\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":230594,\"y\":60083},{\"pos\":\"HL1708\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":231994,\"y\":60083},{\"pos\":\"HL1709\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":233394,\"y\":60083},{\"pos\":\"HL1710\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234794,\"y\":60083},{\"pos\":\"HL1711\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":237594,\"y\":60083},{\"pos\":\"HL1712\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":238994,\"y\":60083},{\"pos\":\"HL1713\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":240394,\"y\":60083},{\"pos\":\"HL1714\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":241794,\"y\":60083},{\"pos\":\"HL1715\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":243194,\"y\":60083},{\"pos\":\"HL1716\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":245994,\"y\":60083},{\"pos\":\"HL1717\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":247394,\"y\":60083},{\"pos\":\"HL1718\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":248794,\"y\":60083},{\"pos\":\"HL1719\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":250194,\"y\":60083},{\"pos\":\"HL1720\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":251594,\"y\":60083},{\"pos\":\"HL1721\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":254394,\"y\":60083},{\"pos\":\"HL1722\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":255794,\"y\":60083},{\"pos\":\"HL1723\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":257194,\"y\":60083},{\"pos\":\"HL1724\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":258594,\"y\":60083},{\"pos\":\"HL1725\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259994,\"y\":60083},{\"pos\":\"HL1726\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":262794,\"y\":60083},{\"pos\":\"HL1727\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264194,\"y\":60083},{\"pos\":\"HL1728\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":265594,\"y\":60083},{\"pos\":\"HL1729\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266994,\"y\":60083},{\"pos\":\"HL1730\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":268394,\"y\":60083},{\"pos\":\"HL1801\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220096,\"y\":54338},{\"pos\":\"HL1802\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222546,\"y\":54338},{\"pos\":\"HL1803\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224996,\"y\":54338},{\"pos\":\"HL1804\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227446,\"y\":54338},{\"pos\":\"HL1805\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229896,\"y\":54338},{\"pos\":\"HL1806\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232346,\"y\":54338},{\"pos\":\"HL1807\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234796,\"y\":54338},{\"pos\":\"HL1808\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":237246,\"y\":54338},{\"pos\":\"HL1809\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239696,\"y\":54338},{\"pos\":\"HL1810\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242146,\"y\":54338},{\"pos\":\"HL1811\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":244596,\"y\":54338},{\"pos\":\"HL1812\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":247046,\"y\":54338},{\"pos\":\"HL1813\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249496,\"y\":54338},{\"pos\":\"HL1814\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":251946,\"y\":54338},{\"pos\":\"HL1815\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":254396,\"y\":54338},{\"pos\":\"HL1816\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256846,\"y\":54338},{\"pos\":\"HL1817\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259296,\"y\":54338},{\"pos\":\"HL1818\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":261746,\"y\":54338},{\"pos\":\"HL1819\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264196,\"y\":54338},{\"pos\":\"HL1820\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266646,\"y\":54338},{\"pos\":\"HL1821\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":269096,\"y\":54338},{\"pos\":\"HL1901\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":220096,\"y\":52808},{\"pos\":\"HL1902\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":222546,\"y\":52808},{\"pos\":\"HL1903\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":224996,\"y\":52808},{\"pos\":\"HL1904\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":227446,\"y\":52808},{\"pos\":\"HL1905\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":229896,\"y\":52808},{\"pos\":\"HL1906\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":232346,\"y\":52808},{\"pos\":\"HL1907\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":234796,\"y\":52808},{\"pos\":\"HL1908\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":237246,\"y\":52808},{\"pos\":\"HL1909\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":239696,\"y\":52808},{\"pos\":\"HL1910\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":242146,\"y\":52808},{\"pos\":\"HL1911\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":244596,\"y\":52808},{\"pos\":\"HL1912\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":247046,\"y\":52808},{\"pos\":\"HL1913\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":249496,\"y\":52808},{\"pos\":\"HL1914\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":251946,\"y\":52808},{\"pos\":\"HL1915\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":254396,\"y\":52808},{\"pos\":\"HL1916\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":256846,\"y\":52808},{\"pos\":\"HL1917\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":259296,\"y\":52808},{\"pos\":\"HL1918\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":261746,\"y\":52808},{\"pos\":\"HL1919\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":264196,\"y\":52808},{\"pos\":\"HL1920\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":266646,\"y\":52808},{\"pos\":\"HL1921\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"0\",\"x\":269096,\"y\":52808},{\"pos\":\"HLIN01\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"90\",\"x\":279187,\"y\":110469},{\"pos\":\"HLIN02\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"90\",\"x\":279187,\"y\":108949},{\"pos\":\"HLIN03\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"90\",\"x\":279187,\"y\":107429},{\"pos\":\"HLIN04\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"90\",\"x\":279187,\"y\":105909},{\"pos\":\"HLIN05\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"90\",\"x\":279187,\"y\":104389},{\"pos\":\"HLIN06\",\"ctnr_code\":null,\"ctnr_typ\":null,\"pod_dir\":\"90\",\"x\":279187,\"y\":102367}]}]",
+        "payloadType": "json",
+        "x": 140,
+        "y": 280,
+        "wires": [
+            [
+                "02ba4cbe0c19a004"
+            ]
+        ]
+    },
+    {
+        "id": "02ba4cbe0c19a004",
+        "type": "function",
+        "z": "670faf1ccef76851",
+        "name": "处理FMR数据",
+        "func": "let payload = msg.payload\nlet fmr = global.get(\"FMR\");\n\nlet datas = [];\nlet tenantId = \"dae2bccbc97737dcedb1ab198d1aa164\";\n\n\nlet plt = payload[0][\"plt\"];\nObject.keys(plt).forEach((index)=>{\n    const data = {\n        \"1|2\": plt[index][\"ctnr_code\"]  ,\n        \"1|4\": plt[index][\"ctnr_typ\"] == null ? 0 : plt[index][\"ctnr_typ\"],\n        \"1|5\": plt[index][\"x\"],\n        \"1|6\": plt[index][\"y\"],\n        \"topic\": \"/DFS/\" + tenantId + \"/\" + fmr[index],\n    }\n    datas.push(data);\n})\n\nlet stock = payload[0][\"stock\"];\nObject.keys(stock).forEach((index) => {\n    const data = {\n        \"data|info\": JSON.stringify(stock[index]),\n        \"topic\": \"/DFS/\" + tenantId + \"/\" + \"6b14b4ca758bb8efa76a86b6dfba370f\",\n    }\n    datas.push(data);\n})\nmsg.payload = datas;\nmsg.topic = \"\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 280,
+        "wires": [
+            [
+                "90650a3d24bf54fa",
+                "dd96bc99a7250276"
+            ]
+        ]
+    },
+    {
+        "id": "d9e6de04129d4bd4",
+        "type": "redis-command",
+        "z": "670faf1ccef76851",
+        "server": "9d6c0ea45d351746",
+        "command": "HSET",
+        "name": "hset",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 1490,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a9e2c65e40ffcff4",
+        "type": "function",
+        "z": "670faf1ccef76851",
+        "name": "设置属性缓存",
+        "func": "// msg.payload = [ \"HSET\", \"dfs:digital_twin:{}\", ];\n\nlet payload = msg.payload;\nlet topic = payload[\"topic\"];\n\nlet objectId = topic.substring(topic.lastIndexOf(\"/\") + 1);\nlet dfsKey = \"dfs:digital_twin:\" + objectId;\n\nlet datas = [];\nObject.keys(payload).forEach(key => {\n    if(key != \"topic\"){\n        const data = [dfsKey, key, JSON.stringify(payload[key])];\n        datas.push(data)\n    }\n})\n\nmsg.payload = datas;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1120,
+        "y": 280,
+        "wires": [
+            [
+                "cb06b857b6257d71"
+            ]
+        ]
+    },
+    {
+        "id": "cb06b857b6257d71",
+        "type": "split",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 1330,
+        "y": 280,
+        "wires": [
+            [
+                "d9e6de04129d4bd4",
+                "55af3235e83f1b4c"
+            ]
+        ]
+    },
+    {
+        "id": "bedc62c225a93959",
+        "type": "inject",
+        "z": "670faf1ccef76851",
+        "name": "AGV 数据",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[{\"ts\":0,\"battery\":\"96\",\"cellVoltage\":[{\"cellVoltage1\":\"3310\",\"cellVoltage10\":\"3317\",\"cellVoltage11\":\"3316\",\"cellVoltage12\":\"3316\",\"cellVoltage13\":\"3315\",\"cellVoltage14\":\"3316\",\"cellVoltage15\":\"3316\",\"cellVoltage16\":\"3316\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3317\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3316\",\"cellVoltage4\":\"3317\",\"cellVoltage5\":\"3316\",\"cellVoltage6\":\"3316\",\"cellVoltage7\":\"3316\",\"cellVoltage8\":\"3315\",\"cellVoltage9\":\"3316\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50684\",\"posY\":\"45116\",\"robotCode\":\"3196\",\"robotIp\":\"192.168.22.170\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"338\",\"temperatureOne\":\"335\",\"robotDir\":0,\"volTage\":\"5305\"},{\"ts\":0,\"battery\":\"83\",\"cellVoltage\":[{\"cellVoltage1\":\"3306\",\"cellVoltage10\":\"3310\",\"cellVoltage11\":\"3309\",\"cellVoltage12\":\"3310\",\"cellVoltage13\":\"3309\",\"cellVoltage14\":\"3311\",\"cellVoltage15\":\"3309\",\"cellVoltage16\":\"3310\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3310\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3310\",\"cellVoltage4\":\"3310\",\"cellVoltage5\":\"3310\",\"cellVoltage6\":\"3310\",\"cellVoltage7\":\"3310\",\"cellVoltage8\":\"3310\",\"cellVoltage9\":\"3310\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50012\",\"posY\":\"15666\",\"robotCode\":\"3257\",\"robotIp\":\"192.168.22.156\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"315\",\"temperatureOne\":\"317\",\"robotDir\":0,\"volTage\":\"5295\"},{\"ts\":1000,\"battery\":\"95\",\"cellVoltage\":[{\"cellVoltage1\":\"3310\",\"cellVoltage10\":\"3317\",\"cellVoltage11\":\"3316\",\"cellVoltage12\":\"3316\",\"cellVoltage13\":\"3315\",\"cellVoltage14\":\"3316\",\"cellVoltage15\":\"3316\",\"cellVoltage16\":\"3316\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3317\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3316\",\"cellVoltage4\":\"3317\",\"cellVoltage5\":\"3316\",\"cellVoltage6\":\"3316\",\"cellVoltage7\":\"3316\",\"cellVoltage8\":\"3315\",\"cellVoltage9\":\"3316\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50684\",\"posY\":\"46116\",\"robotCode\":\"3196\",\"robotIp\":\"192.168.22.170\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"338\",\"temperatureOne\":\"335\",\"robotDir\":90,\"volTage\":\"5305\"},{\"ts\":1000,\"battery\":\"83\",\"cellVoltage\":[{\"cellVoltage1\":\"3306\",\"cellVoltage10\":\"3310\",\"cellVoltage11\":\"3309\",\"cellVoltage12\":\"3310\",\"cellVoltage13\":\"3309\",\"cellVoltage14\":\"3311\",\"cellVoltage15\":\"3309\",\"cellVoltage16\":\"3310\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3310\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3310\",\"cellVoltage4\":\"3310\",\"cellVoltage5\":\"3310\",\"cellVoltage6\":\"3310\",\"cellVoltage7\":\"3310\",\"cellVoltage8\":\"3310\",\"cellVoltage9\":\"3310\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50012\",\"posY\":\"15666\",\"robotCode\":\"3257\",\"robotIp\":\"192.168.22.156\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"315\",\"temperatureOne\":\"317\",\"robotDir\":0,\"volTage\":\"5295\"},{\"ts\":2000,\"battery\":\"94\",\"cellVoltage\":[{\"cellVoltage1\":\"3310\",\"cellVoltage10\":\"3317\",\"cellVoltage11\":\"3316\",\"cellVoltage12\":\"3316\",\"cellVoltage13\":\"3315\",\"cellVoltage14\":\"3316\",\"cellVoltage15\":\"3316\",\"cellVoltage16\":\"3316\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3317\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3316\",\"cellVoltage4\":\"3317\",\"cellVoltage5\":\"3316\",\"cellVoltage6\":\"3316\",\"cellVoltage7\":\"3316\",\"cellVoltage8\":\"3315\",\"cellVoltage9\":\"3316\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50684\",\"posY\":\"47116\",\"robotCode\":\"3196\",\"robotIp\":\"192.168.22.170\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"338\",\"temperatureOne\":\"335\",\"robotDir\":180,\"volTage\":\"5305\"},{\"ts\":2000,\"battery\":\"83\",\"cellVoltage\":[{\"cellVoltage1\":\"3306\",\"cellVoltage10\":\"3310\",\"cellVoltage11\":\"3309\",\"cellVoltage12\":\"3310\",\"cellVoltage13\":\"3309\",\"cellVoltage14\":\"3311\",\"cellVoltage15\":\"3309\",\"cellVoltage16\":\"3310\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3310\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3310\",\"cellVoltage4\":\"3310\",\"cellVoltage5\":\"3310\",\"cellVoltage6\":\"3310\",\"cellVoltage7\":\"3310\",\"cellVoltage8\":\"3310\",\"cellVoltage9\":\"3310\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50012\",\"posY\":\"15666\",\"robotCode\":\"3257\",\"robotIp\":\"192.168.22.156\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"315\",\"temperatureOne\":\"317\",\"robotDir\":0,\"volTage\":\"5295\"},{\"ts\":3000,\"battery\":\"93\",\"cellVoltage\":[{\"cellVoltage1\":\"3310\",\"cellVoltage10\":\"3317\",\"cellVoltage11\":\"3316\",\"cellVoltage12\":\"3316\",\"cellVoltage13\":\"3315\",\"cellVoltage14\":\"3316\",\"cellVoltage15\":\"3316\",\"cellVoltage16\":\"3316\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3317\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3316\",\"cellVoltage4\":\"3317\",\"cellVoltage5\":\"3316\",\"cellVoltage6\":\"3316\",\"cellVoltage7\":\"3316\",\"cellVoltage8\":\"3315\",\"cellVoltage9\":\"3316\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50684\",\"posY\":\"45116\",\"robotCode\":\"3196\",\"robotIp\":\"192.168.22.170\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"338\",\"temperatureOne\":\"335\",\"robotDir\":90,\"volTage\":\"5305\"},{\"ts\":3000,\"battery\":\"83\",\"cellVoltage\":[{\"cellVoltage1\":\"3306\",\"cellVoltage10\":\"3310\",\"cellVoltage11\":\"3309\",\"cellVoltage12\":\"3310\",\"cellVoltage13\":\"3309\",\"cellVoltage14\":\"3311\",\"cellVoltage15\":\"3309\",\"cellVoltage16\":\"3310\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3310\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3310\",\"cellVoltage4\":\"3310\",\"cellVoltage5\":\"3310\",\"cellVoltage6\":\"3310\",\"cellVoltage7\":\"3310\",\"cellVoltage8\":\"3310\",\"cellVoltage9\":\"3310\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50012\",\"posY\":\"15666\",\"robotCode\":\"3257\",\"robotIp\":\"192.168.22.156\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"315\",\"temperatureOne\":\"317\",\"robotDir\":0,\"volTage\":\"5295\"},{\"ts\":4000,\"battery\":\"92\",\"cellVoltage\":[{\"cellVoltage1\":\"3310\",\"cellVoltage10\":\"3317\",\"cellVoltage11\":\"3316\",\"cellVoltage12\":\"3316\",\"cellVoltage13\":\"3315\",\"cellVoltage14\":\"3316\",\"cellVoltage15\":\"3316\",\"cellVoltage16\":\"3316\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3317\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3316\",\"cellVoltage4\":\"3317\",\"cellVoltage5\":\"3316\",\"cellVoltage6\":\"3316\",\"cellVoltage7\":\"3316\",\"cellVoltage8\":\"3315\",\"cellVoltage9\":\"3316\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50684\",\"posY\":\"48116\",\"robotCode\":\"3196\",\"robotIp\":\"192.168.22.170\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"338\",\"temperatureOne\":\"335\",\"robotDir\":90,\"volTage\":\"5305\"},{\"ts\":4000,\"battery\":\"83\",\"cellVoltage\":[{\"cellVoltage1\":\"3306\",\"cellVoltage10\":\"3310\",\"cellVoltage11\":\"3309\",\"cellVoltage12\":\"3310\",\"cellVoltage13\":\"3309\",\"cellVoltage14\":\"3311\",\"cellVoltage15\":\"3309\",\"cellVoltage16\":\"3310\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3310\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3310\",\"cellVoltage4\":\"3310\",\"cellVoltage5\":\"3310\",\"cellVoltage6\":\"3310\",\"cellVoltage7\":\"3310\",\"cellVoltage8\":\"3310\",\"cellVoltage9\":\"3310\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50012\",\"posY\":\"15666\",\"robotCode\":\"3257\",\"robotIp\":\"192.168.22.156\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"315\",\"temperatureOne\":\"317\",\"robotDir\":90,\"volTage\":\"5295\"},{\"ts\":5000,\"battery\":\"91\",\"cellVoltage\":[{\"cellVoltage1\":\"3310\",\"cellVoltage10\":\"3317\",\"cellVoltage11\":\"3316\",\"cellVoltage12\":\"3316\",\"cellVoltage13\":\"3315\",\"cellVoltage14\":\"3316\",\"cellVoltage15\":\"3316\",\"cellVoltage16\":\"3316\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3317\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3316\",\"cellVoltage4\":\"3317\",\"cellVoltage5\":\"3316\",\"cellVoltage6\":\"3316\",\"cellVoltage7\":\"3316\",\"cellVoltage8\":\"3315\",\"cellVoltage9\":\"3316\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50684\",\"posY\":\"49116\",\"robotCode\":\"3196\",\"robotIp\":\"192.168.22.170\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"338\",\"temperatureOne\":\"335\",\"robotDir\":90,\"volTage\":\"5305\"},{\"ts\":5000,\"battery\":\"83\",\"cellVoltage\":[{\"cellVoltage1\":\"3306\",\"cellVoltage10\":\"3310\",\"cellVoltage11\":\"3309\",\"cellVoltage12\":\"3310\",\"cellVoltage13\":\"3309\",\"cellVoltage14\":\"3311\",\"cellVoltage15\":\"3309\",\"cellVoltage16\":\"3310\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3310\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3310\",\"cellVoltage4\":\"3310\",\"cellVoltage5\":\"3310\",\"cellVoltage6\":\"3310\",\"cellVoltage7\":\"3310\",\"cellVoltage8\":\"3310\",\"cellVoltage9\":\"3310\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50012\",\"posY\":\"15666\",\"robotCode\":\"3257\",\"robotIp\":\"192.168.22.156\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"315\",\"temperatureOne\":\"317\",\"robotDir\":0,\"volTage\":\"5295\"},{\"ts\":6000,\"battery\":\"90\",\"cellVoltage\":[{\"cellVoltage1\":\"3311\",\"cellVoltage10\":\"3317\",\"cellVoltage11\":\"3316\",\"cellVoltage12\":\"3316\",\"cellVoltage13\":\"3316\",\"cellVoltage14\":\"3316\",\"cellVoltage15\":\"3315\",\"cellVoltage16\":\"3316\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3317\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3315\",\"cellVoltage4\":\"3317\",\"cellVoltage5\":\"3317\",\"cellVoltage6\":\"3316\",\"cellVoltage7\":\"3317\",\"cellVoltage8\":\"3315\",\"cellVoltage9\":\"3316\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50684\",\"posY\":\"50116\",\"robotCode\":\"3196\",\"robotIp\":\"192.168.22.170\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"338\",\"temperatureOne\":\"335\",\"robotDir\":180,\"volTage\":\"5305\"},{\"ts\":6000,\"battery\":\"83\",\"cellVoltage\":[{\"cellVoltage1\":\"3306\",\"cellVoltage10\":\"3310\",\"cellVoltage11\":\"3309\",\"cellVoltage12\":\"3310\",\"cellVoltage13\":\"3309\",\"cellVoltage14\":\"3311\",\"cellVoltage15\":\"3309\",\"cellVoltage16\":\"3310\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3310\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3310\",\"cellVoltage4\":\"3310\",\"cellVoltage5\":\"3310\",\"cellVoltage6\":\"3310\",\"cellVoltage7\":\"3310\",\"cellVoltage8\":\"3310\",\"cellVoltage9\":\"3310\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50012\",\"posY\":\"15666\",\"robotCode\":\"3257\",\"robotIp\":\"192.168.22.156\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"315\",\"temperatureOne\":\"317\",\"robotDir\":0,\"volTage\":\"5295\"},{\"ts\":7000,\"battery\":\"89\",\"cellVoltage\":[{\"cellVoltage1\":\"3311\",\"cellVoltage10\":\"3317\",\"cellVoltage11\":\"3316\",\"cellVoltage12\":\"3316\",\"cellVoltage13\":\"3316\",\"cellVoltage14\":\"3316\",\"cellVoltage15\":\"3315\",\"cellVoltage16\":\"3316\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3317\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3315\",\"cellVoltage4\":\"3317\",\"cellVoltage5\":\"3317\",\"cellVoltage6\":\"3316\",\"cellVoltage7\":\"3317\",\"cellVoltage8\":\"3315\",\"cellVoltage9\":\"3316\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50684\",\"posY\":\"51116\",\"robotCode\":\"3196\",\"robotIp\":\"192.168.22.170\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"338\",\"temperatureOne\":\"335\",\"robotDir\":90,\"volTage\":\"5305\"},{\"ts\":7000,\"battery\":\"83\",\"cellVoltage\":[{\"cellVoltage1\":\"3306\",\"cellVoltage10\":\"3310\",\"cellVoltage11\":\"3310\",\"cellVoltage12\":\"3310\",\"cellVoltage13\":\"3309\",\"cellVoltage14\":\"3310\",\"cellVoltage15\":\"3310\",\"cellVoltage16\":\"3310\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3310\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3310\",\"cellVoltage4\":\"3309\",\"cellVoltage5\":\"3311\",\"cellVoltage6\":\"3310\",\"cellVoltage7\":\"3310\",\"cellVoltage8\":\"3310\",\"cellVoltage9\":\"3310\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50012\",\"posY\":\"15666\",\"robotCode\":\"3257\",\"robotIp\":\"192.168.22.156\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"315\",\"temperatureOne\":\"317\",\"robotDir\":0,\"volTage\":\"5296\"},{\"ts\":8000,\"battery\":\"88\",\"cellVoltage\":[{\"cellVoltage1\":\"3311\",\"cellVoltage10\":\"3317\",\"cellVoltage11\":\"3316\",\"cellVoltage12\":\"3316\",\"cellVoltage13\":\"3316\",\"cellVoltage14\":\"3316\",\"cellVoltage15\":\"3315\",\"cellVoltage16\":\"3316\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3317\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3315\",\"cellVoltage4\":\"3317\",\"cellVoltage5\":\"3317\",\"cellVoltage6\":\"3316\",\"cellVoltage7\":\"3317\",\"cellVoltage8\":\"3315\",\"cellVoltage9\":\"3316\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50684\",\"posY\":\"52116\",\"robotCode\":\"3196\",\"robotIp\":\"192.168.22.170\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"338\",\"temperatureOne\":\"335\",\"robotDir\":0,\"volTage\":\"5305\"},{\"ts\":8000,\"battery\":\"83\",\"cellVoltage\":[{\"cellVoltage1\":\"3306\",\"cellVoltage10\":\"3310\",\"cellVoltage11\":\"3310\",\"cellVoltage12\":\"3310\",\"cellVoltage13\":\"3309\",\"cellVoltage14\":\"3310\",\"cellVoltage15\":\"3310\",\"cellVoltage16\":\"3310\",\"cellVoltage17\":\"0\",\"cellVoltage18\":\"0\",\"cellVoltage19\":\"0\",\"cellVoltage2\":\"3310\",\"cellVoltage20\":\"0\",\"cellVoltage21\":\"0\",\"cellVoltage22\":\"0\",\"cellVoltage3\":\"3310\",\"cellVoltage4\":\"3309\",\"cellVoltage5\":\"3311\",\"cellVoltage6\":\"3310\",\"cellVoltage7\":\"3310\",\"cellVoltage8\":\"3310\",\"cellVoltage9\":\"3310\"}],\"direction\":\"180\",\"exclude\":\"0\",\"excludeStr\":\"正常\",\"inputCur\":\"0\",\"outCur\":\"8\",\"podCode\":\"\",\"podDir\":\"\",\"posX\":\"50012\",\"posY\":\"15666\",\"robotCode\":\"3257\",\"robotIp\":\"192.168.22.156\",\"status\":\"246\",\"stop\":\"0\",\"stopStr\":\"否\",\"temperatureLow\":\"315\",\"temperatureOne\":\"317\",\"robotDir\":0,\"volTage\":\"5296\"}]",
+        "payloadType": "json",
+        "x": 120,
+        "y": 460,
+        "wires": [
+            [
+                "d6f079b5609e0a91"
+            ]
+        ]
+    },
+    {
+        "id": "4094c2cb406a0599",
+        "type": "function",
+        "z": "670faf1ccef76851",
+        "name": "处理AGV数据",
+        "func": "let payload = msg.payload\nlet AGV = global.get(\"AGV\");\n\nlet tenantId = \"dae2bccbc97737dcedb1ab198d1aa164\";\nlet redis = context.global.get(\"redis\");\n\n\n\nlet datas = [];\nObject.keys(payload).forEach((index) => {\n   \n    let agv = payload[index];\n    // @ts-ignore\n    let objectId = AGV[index%2];\n\n    let dfsKey = \"dfs:digital_twin:\" + objectId;\n    \n    redis.hgetall([dfsKey], (err, oldData) => {\n        if (err) {\n            node.error(\"Error getting data from Redis: \" + err, msg);\n            return;\n        }\n        let data;\n        if (Object.keys(oldData).length == 0){\n            node.warn(agv[\"podDir\"] == \"\");\n             data = {\n                \"topic\": \"/DFS/\" + tenantId + \"/\" + objectId,\n                \"data|2\": 0,\n                \"data|13\": 0,\n                \"data|14\": 0,\n                \"data|15\": Number(agv[\"posX\"]),\n                \"data|16\": Number(agv[\"posY\"]),\n                \"data|17\": 0, \n                \"data|18\": agv[\"robotDir\"] == \"\" ? 0 : Number(agv[\"robotDir\"]),\n                \"data|19\": 0,\n                \"data|id\": agv[\"robotCode\"],\n                // \"agv_info|voltage\": agv[\"voltage\"],\n                \"agv_info|14\": Number(agv[\"forkLiftInfo\"][\"ctnrType\"] == \"\" ? \"0\" : agv[\"forkLiftInfo\"][\"ctnrType\"]),\n                \"agv_info|targetPos\": \"\",\n                \"agv_info|status\": Number(agv[\"status\"]),\n                \"agv_info|electricCurrent\": String(Number(agv[\"inputCur\"]) - Number(agv[\"outCur\"])),\n                \"agv_info|16\": agv[\"battery\"],\n                \"agv_info|temperature\": agv[\"temperatureOne\"]\n            }\n            msg.payload = data;\n        } \n        else {\n            \n            let speed = 0;\n            let oldPosX = oldData[\"data|15\"];\n            let oldPosY = oldData[\"data|16\"];\n            if (oldData[\"data|15\"] != null && oldData[\"data|16\"] != null) {\n                speed = Math.sqrt(Math.abs(Number(oldPosX) - Number(agv[\"posX\"])) ^ 2 + Math.abs(Number(oldPosY) - Number(agv[\"posY\"]) ) ^ 2);\n                speed = speed / ((Date.parse(new Date()) - Number(msg.ts))/1000);\n                // speed = speed / 1000;\n            }\n            \n            let data = {\n                \"topic\": \"/DFS/\" + tenantId + \"/\" + objectId,\n                \"data|2\": speed,\n                \"data|13\": Number(oldPosX),\n                \"data|14\": Number(oldPosY),\n                \"data|15\": Number(agv[\"posX\"]),\n                \"data|16\": Number(agv[\"posY\"]),\n                \"data|17\": oldData[\"data|18\"] == \"\" ? 0 : Number(oldData[\"data|18\"]),\n                \"data|18\": agv[\"robotDir\"] == \"\" ? 0 : Number(agv[\"robotDir\"]),\n                \"data|19\": oldData[\"data|18\"] != null ? Math.abs(agv[\"robotDir\"] - oldData[\"data|18\"]) : 0,\n                \"data|id\": agv[\"robotCode\"],\n                // \"agv_info|voltage\": agv[\"voltage\"],\n                \"agv_info|14\": Number(agv[\"forkLiftInfo\"][\"ctnrType\"] == \"\" ? \"0\" : agv[\"forkLiftInfo\"][\"ctnrType\"]),\n                \"agv_info|targetPos\": \"\",\n                \"agv_info|status\": Number(agv[\"status\"]),\n                \"agv_info|electricCurrent\": String(Number(agv[\"inputCur\"]) - Number(agv[\"outCur\"])),\n                \"agv_info|16\": agv[\"battery\"],\n                \"agv_info|temperature\": agv[\"temperatureOne\"]\n            }\n            msg.payload = data;\n            msg.topic = \"\";\n        }\n        // msg.delay = agv[\"ts\"];\n        node.send(msg);\n    })\n})\n\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 800,
+        "y": 460,
+        "wires": [
+            [
+                "a9e2c65e40ffcff4",
+                "4c077982cfea1566",
+                "347e17971ead36c2"
+            ]
+        ]
+    },
+    {
+        "id": "e09c23e957ee252f",
+        "type": "inject",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 60,
+        "wires": [
+            [
+                "88774e2b983e0b37"
+            ]
+        ]
+    },
+    {
+        "id": "88774e2b983e0b37",
+        "type": "function",
+        "z": "670faf1ccef76851",
+        "name": "设置全局变量",
+        "func": "// 设置码头数据\nglobal.set(\"pier\", [\n    \"0aed2a73c0f0cbd16a00fc2de7fbd38d\",\n     \"ad7b9c6b1991e2c999a37d2aefedd3f3\",\n    \"ad1b0b385726133c88db8e4dbd4ea8aa\",\n    \"077edc2e3a73434c4694a24f9cad9bf8\",\n    \"9cc4a8aed275e4e92bcd7da201313cb1\",\n    \"75285f4482dd93acccf9a48163c74afa\",\n    \"0179030b9b1a1ad52e0f5857297a7825\",\n    \"c44cf1a08617b52dc38f0def23904908\",\n    \"181d8f432ce9e3a494bd46033368f533\",\n    \"c2ce2c729052cc1ac1e10b6e2d4d9775\",\n    \"b48ef015d8f9b945f9f2d6c1f1b026ba\",\n    \"09463d05592dc0645c3cdd0d041bca97\",\n    \"8f101e2934bb1ffb4100cff275f5d988\",\n    \"77c72d3f9d1469d23a8748c4de56ffb0\",\n    \"f494c03982ad8472221172dcb9c0eda1\",\n    \"c08c67dbe599a40de25bf3eb38795524\",\n    \"6679baf256201cd6e9277948bc7feaff\",\n    \"b7b7b80211aeece31a81e0e5cc6db9d0\",\n    \"8e56969283bdc274d658dbafa18d36e4\",\n    \"bd5b18d3e01e2323c6bc71000d15c267\",\n    \"02e40ac43136ad33779c2345dbd3516b\"\n]);\n\n// 设置码头数据\nglobal.set(\"AGV\", [\n    \"02eb1a88c224379ebb6d4aae42a550b1\",\n    \"7ca4bb84dbca98d45eae93decb436ca7\"\n]);\n\n// 设置FMR 数据\nglobal.set(\"FMR\",[\n    \"3b18575ab84b4ed68f2e299c9edb1c09\",\n    \"2cf38389ed754d27ba00188c81407218\",\n    \"6cd4ef0e2fc9407cb2fcbe201acae761\",\n    \"a23e435730154a78894f452b03318896\",\n    \"ee9f1520d94a4aa29ff443db3c110f29\",\n    \"2ff175bd00d543f29836bdde416073f9\",\n    \"f9ccd6e7cafe437295945e3d3f4ea78d\",\n    \"fb73efbcfebd4c2c9fa0edd465928a59\",\n    \"db05b8ddd6be496a92f59c4aa61b5be6\",\n    \"64cc8650b5b34765b96046a5f3923cd5\",\n    \"b47e26eaa77942c2b1b41fe89d67a78c\",\n    \"15130e3e564645f0814debcc169b1c86\",\n    \"13d902005dd949a18cc041c1de4592cd\",\n    \"da31d5117b4c423992df4f41df6a59b3\",\n    \"0eef1511ad5645b98672fba4230d4df3\",\n    \"17d8e4f675394209985f012c78034465\",\n    \"f2bc8a4d29644b01b9b6c7dd37f67ce7\",\n    \"fb30f261a88c4ff09df7013c62868e04\",\n    \"92703f1455134f2a9edad95d825d0cb4\",\n    \"cb8638fa231647c2819218759feac8e6\",\n    \"f177caf412974fa4ae9e8dcab68bbd02\",\n    \"3513a536049245f2891834bc006efef2\",\n    \"a67a1a1b094142bc956867430502890c\",\n    \"ad7f77e1b86e428b9b076ad98d2c0af7\",\n    \"e0496c2111bc4d5f9f2a5ab7cae26e61\",\n    \"a545eaeaef1f48d7941c7a7efc5aff7d\",\n    \"a93c3cedfe5c45899b8347ad050d10ba\",\n    \"f591deb9eb61493eb55b409b14db89dd\",\n    \"2ee2424871b648b295636995f4dbf22d\",\n    \"775f6cca909d4defb2cdc0227c8f97f7\",\n    \"12d8df4d9dab4927bfe0dd56afbd340a\",\n    \"8dd8eb3aabd44cd3b628e34c7f57d33d\",\n    \"8391de7d981f4ed58879d4848712af2f\",\n    \"b1ccf89a87764bab8e1f8c78d73a8219\",\n    \"8df2e469dd3347af8ad72974ed417d32\",\n    \"12034500f7724edd8bb7d82a748b47e9\",\n    \"3f64fc0ac51840ee814eb4928eca3b5b\",\n    \"436b01d4806a409bbe5c3f21be86b730\",\n    \"1c34f1bd76474b8cbab0010dcc8cb117\",\n    \"189c9f986a444177bf43934df3b26fa0\",\n    \"8c6678d406824385878fc5c275af5902\",\n    \"3225e4f3c053454bb66fdac486bc25f1\",\n    \"73f1aeb62a414dae96d1d20b716f3163\",\n    \"bbdb048a1fcc4d3c9a7c0cf9f106ef29\",\n    \"68d203cfa02e4e5c96e875ac260b3f05\",\n    \"b7634e96cd8140bc914b955575baf4c3\",\n    \"f82c7275460d4db0bef27c93a41476c4\",\n    \"687374b872b742ad9ea37e90a2deb41d\",\n    \"4e4fe2404330487c80241b664865b361\",\n    \"fc736f1f3a2042e0968f0059d2642377\",\n    \"65498765308d49189981ee8cfeab0cc1\",\n    \"15207e7df896402a9f10f84378fda475\",\n    \"89d0f661f2064b8ab93b92bea391eb41\",\n    \"c478e41fedea4df390f59d76a55479f4\",\n    \"958dd9f17870477b889584bb0bc0be25\",\n    \"abb6d545375f49aa808da05141a42401\",\n    \"ede7d64148e44b74884dde7d51b7d15e\",\n    \"9a7e03d6c35247ca9d4d3acfc26d0f70\",\n    \"319c6e9a3a7d4046bb0caa5fda00f0a9\",\n    \"78a180962de34cd3ba0c55428d6157ee\",\n    \"1f6ef09443af4bfb89a0dfd9d3916095\",\n    \"ceda2f7f4e054878b6390ef867a2b0dd\",\n    \"9ce26590aa64441c99c8567d9586b786\",\n    \"c8fde7b652da41eeb73b094ee77cc226\",\n    \"27549fb265c0410ca3dc007126e6c471\",\n    \"a5e088c5d68f40119a6dcca1fee1f7d3\",\n    \"d7e84c21b0b042aaaac51ed3960c4903\",\n    \"c798622467b547c3847e71bea8af1478\",\n    \"e6d5146f22334d8d842aa011b1864e24\",\n    \"783d7d92a68345bfb55b5cda873bab97\",\n    \"d0f34fa5acab485b8d2fd288773709b2\",\n    \"a023d909c1d34bf59450a0b8f55dcb3d\",\n    \"9f03ff8ff8634e3a8edcd8c823ab8d42\",\n    \"deff055c395f4b3b93c75b7a91be81d1\",\n    \"9052f67e73a9430cb6091292eff4df63\",\n    \"118104cc5e5346489a61b01e702a96a2\",\n    \"660d60b3ec544437a012539f7d0030df\",\n    \"531ad7c362d4419c98a8f0133fa9059a\",\n    \"2fa705273b274a9fb52c5ebb7a4a2a1f\",\n    \"9556ba66cebf42ada70ca0d343a09b1c\",\n    \"00b7f0f226a340c4ac3294393f8cc747\",\n    \"0a369ca6df4d47b3959ce9192b665a41\",\n    \"c414a2f98abc413c9fdaa44d293d562c\",\n    \"2dea5500d0154e2499b176824913f2e2\",\n    \"2650ae705a5e40c5b393d642df1c6f76\",\n    \"9636b315c9334ef39baf52df9ec99dc9\",\n    \"f0f60f2abdcf4c53a2a5076bafb00609\",\n    \"3b6041d444ad4a13a5e69ed28ede958a\",\n    \"738a8584e2194a52a78df590cdf89d6a\",\n    \"810b4a145125412f9712d30f1042339c\",\n    \"2787e5d3e279475590337969c9a505ea\",\n    \"a29da04974574615a6d194eada5e5624\",\n    \"78d0e882760346e09686fa925bb7cf7c\",\n    \"1b024103c7fe4268b725dcf5224aca5f\",\n    \"727fe33941694d1e98c3d4d6564f36ae\",\n    \"877485c62ffc45a68a1e7eace061307b\",\n    \"f9f3fc0eb9b54ceca1dbf8e833a76548\",\n    \"42743021e1684eaca87a37b90e24f010\",\n    \"1ff6be54b2214dfe9ad023aafe734cb8\",\n    \"8cf2506412604319805858475107bd9c\",\n    \"df221c1214bb469984bff351b06458b2\",\n    \"451999d99aba46dd8750e3ecbbe140df\",\n    \"6fc3033e06cb41ce81d8c0eadfb18509\",\n    \"fea5efc80ab5440c94e429b54cb28d91\",\n    \"e95ca11a747345dcbd6b2404a1453a12\",\n    \"dd0286bc1cc04d3d9bf1cef8f6f96fe7\",\n    \"214254e91a864c48948f62b09cf5d33a\",\n    \"058b5a0ffd1b4ece8f7e5824a462fff4\",\n    \"94c2d27d88e442bd9b474daa48274c6d\",\n    \"b52feab2551c4eea92b2d40b1affc95c\",\n    \"4ab24fdf3ea14474bc82bd267f8accbf\",\n    \"40bf8112142840a18162b78dd751487c\",\n    \"6a2f080e8ce24db19793271ed449c676\",\n    \"b6eb3bc8cb4d4462875271566c4ee3cb\",\n    \"00a30edb38a94e5487d76945b1e7b5ec\",\n    \"d24b39437cb7444e8e7263a6d3cde4c0\",\n    \"3d5704db3bd848c19eb7dcb6b4a5f53a\",\n    \"b6de71aadcfb484787bb242b951d5746\",\n    \"037b780abd7f4a0d846b9949daa75d3d\",\n    \"c45479d724a145a58ea8f755338fc836\",\n    \"e435aba97d09412d9b83f4afb89e2e16\",\n    \"fd06a4de77c24102a6705d98f10da9f7\",\n    \"df26df2f8a3d46018a013d162804d537\",\n    \"0f76472d2e5a43918ef5a1c39428eb5c\",\n    \"4a71cf9e82ec4e449a4df5097e995205\",\n    \"d78b050afabf4c76b356de1251e29de6\",\n    \"e27a68769d854a1d8a1fed7a2833fee6\",\n    \"f47e8a526c63406eb6141315d6535c13\",\n    \"0bbc554a812f4a6f809c10c6ac88d581\",\n    \"6f50f8c1f5014fcbb9796bf326f4396a\",\n    \"c53f5672d36d42348cd4460c3ad0b604\",\n    \"40964a0dccd247108259784d848b0a86\",\n    \"48148f386e6740948621b837de9c3ef3\",\n    \"ca565fa58fdf4a338481193352f9c19b\",\n    \"8a751e849c984c40a8bde91fbab4d3df\",\n    \"286c0af255e44e69bab05902ccd8ec03\",\n    \"1788d365d215448db71c70b57cd5b1d8\",\n    \"f234b4fd1a9244a98bb43ffbb5e43628\",\n    \"2d87c9ac7222452a86153f2d5dbca952\",\n    \"abcd2c1efe3f410994b37997a03bb5a9\",\n    \"9b06922d28274b2e8e3671e23599380c\",\n    \"155abd04c06542e48254826f6fab8806\",\n    \"60f6f7a8497f486ca8f2eeb69052b50b\",\n    \"b21653ee88224663929ff47e1e8b5b67\",\n    \"0c16249d7d0442409a2b0a00f2e3f231\",\n    \"83a40d26d45c4c1a8318687b2fe2e03e\",\n    \"593a513b30d24477867c59551e0dd567\",\n    \"ababe11f8f724ce58bb26cfc95f230e2\",\n    \"84a20bc95162450e90373935ee557c49\",\n    \"b869fb800b92403a974bc614a1a61c80\",\n    \"ad383dcb554a416f9c959ab0e0bd3bfd\",\n    \"c0afafb460624ae1b893d8f795e228bd\",\n    \"c2e19266f99e414b9830837e588b7294\",\n    \"ae63e93ffc744cd6b5cfa2952b958b87\",\n    \"c1e6284f780d487ba5e3d67d81dd277e\",\n    \"8fc9ba517cce4a698b9e338ec084dcde\",\n    \"ab886e378a5d4f718ebcfada12790025\",\n    \"9c5284022b604b98ad49a708784946eb\",\n    \"62f2c55f02dc43e4a25b80fb025ffb59\",\n    \"32af928aa01940c4958c1323da5169ba\",\n    \"c0fb9b5745f9497f88496b8e16e8f4c0\",\n    \"4df37104408f407ab5a4490d7795e038\",\n    \"8ccab9a0ad6a4e209b6cd7f6f0c5d249\",\n    \"cdfa9543d9c84e0a9843dc21b78bd7e1\",\n    \"8d7910b056554cd08d92cad099aaa45d\",\n    \"e475a111ba0c4762b42bee0186bcc462\",\n    \"cadbac7a1c87429b9ac29888187dbe34\",\n    \"391ae1c5e9d740a5bb39c9abcc6d30e6\",\n    \"029fb77364744f4e9a831a04d48aca1a\",\n    \"21463d02ce2348f48ed66e607f8d2700\",\n    \"47b144cccc1348e1bfe03addae8a0b99\",\n    \"a710505da54e43aca738286113f66563\",\n    \"86f8bb42bf1947279d0c549fcf76dc1e\",\n    \"a91f792cdd104836a156bd3e5845d0e2\",\n    \"511e7a7d71364f11a98b43c2c2db929f\",\n    \"a6b9a50727a44c47aa2b546f5dd4875f\",\n    \"260df34a0d134a4eafcc1192b65e0e28\",\n    \"feeb3098da604861905796222cfa55bb\",\n    \"f10d8a96f0864c1ba10a0e77742193da\",\n    \"4daa50408ed44540a8c03068fce31eb6\",\n    \"f351b218646b4a39bbf3eb89752d9496\",\n    \"dcc41dcf1b634484889a7e0d63da9e5f\",\n    \"4e68d0df60f14fe093cba02a357748be\",\n    \"ad72d99d80cd45a0b050b1a8731ca984\",\n    \"57bb4da03193482da91184b4e5065f08\",\n    \"ea0238e38fa84b04bbd43da0d281404c\",\n    \"1143a1f1ac004e4d83e244d03e58877f\",\n    \"31fe0e35cad247aab2df3391def22ad6\",\n    \"63f4b57ba79543d185c33f7f998bbfc1\",\n    \"baf75e3e98304bbfaeb6ba4552e65d93\",\n    \"3fcd2113c84f46aaa52b17f76b9ce09d\",\n    \"903ed09f03aa40259aa4a1f9c98a1a4b\",\n    \"247b91b19e474f0a95f9046635df8d13\",\n    \"6d9a937c382449be81329858e3979912\",\n    \"61fc06da55dc495a93e4c465ff947346\",\n    \"425b62b8ed9a45c6aae10a0f24ed0edf\",\n    \"c93446051b5f4f8283aba58e28ee6679\",\n    \"923d6ea66e1442e5b855c064f3be3f33\",\n    \"ffe7d2565fc3415b9c045dc1731d6276\",\n    \"ec12f08ca150468d9ccd7ef7e5ffc9a5\",\n    \"587b90b4669d4927adf6b010f68722ca\",\n    \"fd6ada2aa62241f6bc6ee304f53caa90\",\n    \"4f992915c8604358889c6061662bf15b\",\n    \"cc0b81ca8cbb43c7886f3db6665edb1c\",\n    \"68200d5ce4994fceb82c7701cb832ccf\",\n    \"cbdbe3e064a941f9a7a17fb02fbc08d3\",\n    \"0535a5afe3034f22aff10f7d2328ec9a\",\n    \"02cf307d20e04e449f10c3b999446736\",\n    \"0cc0ba2ed7f84ac192faefaeae1b19ff\",\n    \"1c9f640e425b46c882b8c0dc3e58be9d\",\n    \"af643fb306aa4be6aef2c495eaf95669\",\n    \"1586a7a4a53a4ccab4927a684646da52\",\n    \"29ff0781e89444b8bdeb8ec760c75501\",\n    \"bb4a1b6d231341bbb5504bc0e0454f69\",\n    \"e0f1aae1e94340748d01061db4b06157\",\n    \"f4085892306741ea95edde3e80123b46\",\n    \"b1a6761ce67049bd8a536dcfdbfb5d5c\",\n    \"f8ee8bfa81a54d088372d8bf73324d1d\",\n    \"f1792f76bf3f454194655b55ae631047\",\n    \"6547eb355c8046219f75e9911288c5ab\",\n    \"aa234debef874cf38f079804df51c0a6\",\n    \"6f6f5052883541bf8618d5e6ec08be37\",\n    \"32f404086da244138c494540c9337c93\",\n    \"53e94b5c11e9421c9d0b40f2c3ec6444\",\n    \"31f2c3f4ed2a4120a66691320c557378\",\n    \"503d5a4ea2b648cb9f2d4c1cfedac87a\",\n    \"05e10a984cc642babde77c9f82c0ab20\",\n    \"58631774ad604d1fa82917b687da3ba6\",\n    \"e45a8258af274f7bb018acf3546d6452\",\n    \"24c6abd826594259bef51b2a5527dca9\",\n    \"6ea71fa2a4ac45aa8276b008182d32fb\",\n    \"4e639606c3af4c25a900cbfb63eb36ab\",\n    \"0be29f75254d4e85b06b15280e843069\",\n    \"2aa4021cb1af4236b2b65d3c40e93cfa\",\n    \"29f1dc851797457e9de5f785aab252ad\",\n    \"20c56fdd3d624a07a97fc65a96f2a2d1\",\n    \"54432abe87df4595b409e2da61555152\",\n    \"0fb8abf3d1be4a0884a8e6a13fe95418\",\n    \"35dcf8bee57f4f8e8e9c7580e9a2f13e\",\n    \"403844491c9d41a7bf3dc4909570966b\",\n    \"c1abb931042449e9ab7f15ea9ad8b18e\",\n    \"450eda41240c4320b29b7406a3a8d532\",\n    \"394dbd8b2afa4163813d97b20efba3e5\",\n    \"7c1a0adca6bb4f6ca5d663a4c1f31ef1\",\n    \"206f8a04e35445d9a8c8292e4d747c44\",\n    \"52ecc3328ab94099a9bfa9a58c32bfee\",\n    \"e6cc66a14e2e43ec8a736ca20421e31c\",\n    \"459e5e7ec4b14af3b098ea4493227589\",\n    \"eab32a80d43c493f86186906611f057f\",\n    \"1c40a249c6ad4a45ba8dd07834be0dfe\",\n    \"5f5ad37d84834bad9bda1f2a6226aef3\",\n    \"8af0def42f7e4ad197a939a739607e82\",\n    \"0e90e7ca81c14f5c9b1c52738c0d3ffd\",\n    \"0579097ddf5b4899b244c1b815fcc429\",\n    \"ffde878b11824b879df1a7c92d2c94b8\",\n    \"c635c146fedd4826ae496adfb123e6d2\",\n    \"9af2c192d2ff49ffab2e9ce2a636eebd\",\n    \"ecadc479dd8b48b79a219926b6bb2000\",\n    \"5e40eed89954482789b7306e03b789d8\",\n    \"f5cd28e39a8e4ffeba4dc601cc4ab38a\",\n    \"d06924554d45466ca2532d8f51952eea\",\n    \"883b3e5fc37849a68c3ab3395c64484d\",\n    \"3879ee5e5f8740b8ba1ac246d7bf4821\",\n    \"41f9e2c1fb764e1f86b1a35c4dc09ef7\",\n    \"31f78ea2147247979b10828107d34016\",\n    \"2bcb7121efff444f97132ea8c9e49e6c\",\n    \"63aa902d04b94ea1aa142128f6997bcc\",\n    \"4005c92b09d342d99e29bb78a18b0efd\",\n    \"4fdbc5cf9d2e4eb7b3b4ca9a331a0121\",\n    \"7bf8ca5942c64a9f9b32daf6af197ae8\",\n    \"cea67acaa4ff4d9dad768fb39eaf9530\",\n    \"5310ac00e60d47c4a4c18359fa0e75fb\",\n    \"8faa11b6d34842418719cdfc4f0a9f8a\",\n    \"6e01c813481c41dfb4e6268b68e37856\",\n    \"e21d898d19ed47a295afb6ec7cccf14c\",\n    \"9e14d16990814ea3859842922aadc383\",\n    \"70a9e614676e4465b95c3d853329e150\",\n    \"2a609e3c910742579c3c4e3e82250dcf\",\n    \"de07571233274ab19dd6415b8c1ffb5a\",\n    \"7755149868a84af7a07143db79ebcce4\",\n    \"95798378bbe44791a71da692c8cbcd7b\",\n    \"710e58cc974e4437bf7bdcd6fca06879\",\n    \"d541f9892b3248b38ca33a9cc3872652\",\n    \"cb707416eb634b5b90efc3783179dbaa\",\n    \"b90910356a8a4ba79acc50878bb7cb3a\",\n    \"533ea88a406d4312835b61b359d9b406\",\n    \"5ee660c5edf5473d97fb466a250336f6\",\n    \"d9dd16a316d947d4b92199a6afe4715e\",\n    \"26efd661c4e94eeabbf9c17eaad51796\",\n    \"451d62b1cf2f41a2997eb4f4e212cfea\",\n    \"57524dbdb08d4bc2a827e0202e96fbf4\",\n    \"56000ce2ebe1442ca2d60f176b7521bc\",\n    \"dcfe089fa1924286b89e5e430d5d6c59\",\n    \"be25f7492a6e42c89ad1d51aa1d9fadb\",\n    \"ea217f603fb147089fe2701306d61309\",\n    \"b8c27b6dac0149048be4824f85ed3da2\",\n    \"9e3773035725429aaacd551297b1e94c\",\n    \"da2511d296204b8097b5f5e25beaa549\",\n    \"3a166fb3ce6f4016a54a012dd6e365bb\",\n    \"b98849b28f0544638904cb7a172236cc\",\n    \"2487aa655dca44fa84a291754bda9f7e\",\n    \"52691cb0f5ba4ca7b7522e1c06ba0e82\",\n    \"cc23b824b81243b59f535b82826c15e9\",\n    \"937296e09bc6447ab485bd48243201df\",\n    \"1702be572c9a474895b8e618340c3d3a\",\n    \"f70ca4d1587e44bda3ca4bd8ce4fc3fa\",\n    \"557fba5d46ba4727b621ea4db469d940\",\n    \"1ffb09248ff54e7b88f2e5f810c5a891\",\n    \"64735c64745d48d58f78b2df3ba65c93\",\n    \"4290b2e32f7d42cc9227fa2ad9e99f86\",\n    \"36f5ac67045b474b96033b7be8c8fc95\",\n    \"d7efc09bbb4c445dadaa84eb6c746c5d\",\n    \"3ee8d124feb24b37a89a7a18d5e7e057\",\n    \"0a633bfa9c8f4548bbb8a0af09f7f9dd\",\n    \"24145dbc5c8c473d86b44664875d2eb2\",\n    \"9326e1f489ea4953b6940f1ccc106eb7\",\n    \"e7c5deba67354e148f5705f6c6d04569\",\n    \"f5f7fb5c692c426b9f77588e7b224468\",\n    \"cef415c6f26a4142a3479cd1f481272a\",\n    \"d06bcdf6411e4d5880c26192d8a4cda9\",\n    \"c921f290314b4fd4867714f2aad89ea2\",\n    \"09421b8183284e28b9068eae9feb4150\",\n    \"4098db7f55f9433cadcca622f5e3221b\",\n    \"a95716e0920848d8a12b54fe97b09d2b\",\n    \"e2d4090a171d432f99f769d545c47fd6\",\n    \"7f2674ced36d49c7b738eb9de7600c64\",\n    \"f89a402241254769ba54b65242c0cabc\",\n    \"efc3fd20964644b4aa073b0b38bd562a\",\n    \"d2a3a7aa94a0420282058284bb401b8e\",\n    \"79505a3c79754e4aaecc050c96006152\",\n    \"436a55e3724e418ab183ba16d20b2c66\",\n    \"12b8ec45c0dc4d499720bc49684122c5\",\n    \"a182ea6d215a448fbd88e23780af2581\",\n    \"954198e21d4747ff8ba2367dd378c2af\",\n    \"643d20050a714c7aa1aed70060c8ed66\",\n    \"054384272b1541109ddc2c575c67a79f\",\n    \"9cfbac3099bd4ed481c0adec8555c96f\",\n    \"389f9ff38941482daeeb2a1466880428\",\n    \"e2f4b551126c4d64be5d443d987f6189\",\n    \"ef0f92a51b984b4889ccb4d737b73667\",\n    \"d1211b90012b445fb6910f68f076dd5e\",\n    \"8e6ce60b44c04cecbee8eda4e8c3b8c5\",\n    \"2bec39ea46464c588085432e44661bbc\",\n    \"8548952296aa40f38012e9a8d677c108\",\n    \"c3c23f17309e43e4ae302d3eb9a09dab\",\n    \"a1c89f6b444e4721ae317fc53bded811\",\n    \"e61069c0281f424b917ac63d9566839a\",\n    \"cbbcc3eabb0d4d70bbb3b1e23c29870f\",\n    \"ac8c1954bb2e4779b521113824c9cc6a\",\n    \"8378a24dc59a464f8d132f7dbc249eb1\",\n    \"90505319a07f4a25a373a68e55f4323a\",\n    \"c32b319b70304d6682ba56f2d2a1f4c8\",\n    \"66e00c9a3aa2481482f3a02c74f4107a\",\n    \"1aee0b6028f24c5a817b146be5af8091\",\n    \"db025a8b65f843f2a83cb6e2eabefdbc\",\n    \"a3513d2302054be99b8dd30aa8604093\",\n    \"ea20c1a603a14b458693a75931faefa3\",\n    \"59ba0d30824f4f94bcad81d6f9ed6ddc\",\n    \"e872cbfab56547a58453df9b4d6f9342\",\n    \"54580dfdca214661b616cf1e44724081\",\n    \"314c1d9b43414c71a239e499735b8181\",\n    \"22ab22c8707f40c98f7df9a2c5f4eaf2\",\n    \"6ae15a68c2fc4749ad85f4cd1ea5906d\",\n    \"37f8f63319eb4026a471c382109d3825\",\n    \"d2ec74105e43413fa33fd5f91ce9e3b9\",\n    \"69baeb542b1b4cafa7763c0b2d69901a\",\n    \"414b4827871f4b09ad5915e3bafe6cc6\",\n    \"1f5903b82def426e91d85c988e59b0d2\",\n    \"bff40369b0fc466592d099cc02071942\",\n    \"b7a46fcbf88e4587bae1db0d174587e2\",\n    \"7e31587a5b7d46fba9d02c802fb61475\",\n    \"3b771ca5ea434c108f0ffed228bf2569\",\n    \"dd81ea51f2134fc683588dc4318b8908\",\n    \"24bc4fe35d2343439e4f0ee2962068ce\",\n    \"2d02a0ca25eb4e3d96d2ac088192fc74\",\n    \"5b607afe0b7f4da5b33d5831b9f7eb9c\",\n    \"ab9eabc2812349b89b16af92ab892831\",\n    \"acda05377e9c4642b9c864a16c2acb4b\",\n    \"bd129d37498a4304bf02ef28ec3670c4\",\n    \"a234445edad04b8e8c61899e01eddfe4\",\n    \"82aadc878f0c4a3a8858e4cfd7a35b51\",\n    \"d02bb0aa05d540fabc1c0df25ea8b9d7\",\n    \"967c8e48e43748b6ab7018a70b96327d\",\n    \"8c724146eb7a4dc4a9d8aae09060c859\",\n    \"407cf00486494deea4ad42bc9fb11e79\",\n    \"2370e265168a4db28035164915e32a48\",\n    \"02d82de997a44aed9830ce2333534223\",\n    \"06a1ce5d57964067b22153cb99340b0d\",\n    \"b7c3101308a0468eae74b3ef958bdc2c\",\n    \"73f72f16092540d8a2e15ddd7f3eddbc\",\n    \"b64b09abce96447ab5d4118c574f4c25\",\n    \"34baeb86e5d44a05bde717ccb251fa23\",\n    \"d3a418f09d9f4454b23f6cc381ace611\",\n    \"b8b7a249ea1f4f49aa58a11cd4a4031b\",\n    \"834c73b91fa1426b8b61bed8890436be\",\n    \"f910719facb949e1b2a9e5619ad30a25\",\n    \"efcb36e3d72840f1b65e26e9a9677f35\",\n    \"242e34afe37741cca70d4264ff1dfaa4\",\n    \"da4a96555b0241eaa7c763a1acef99c9\",\n    \"6e5557c701024d7185010eedceb79a30\",\n    \"fe38b64c41824d26bc3f5394ca186876\",\n    \"5dedc3a1783249f983504306b16e10b2\",\n    \"2301fe40bc014adda450aacdefe16c43\",\n    \"b8b61d2702124d5cb3048af9a92e5668\",\n    \"acb1364fff454a5b99400c6e9602bcfb\",\n    \"0278d3f336454b8c93d3fa9b6735dc55\",\n    \"b14ccc6b4d4c4f21aff90c2a3897e20c\",\n    \"af3279d8566a45f987dae246a8e049f8\",\n    \"540fbb88eedb41bbada4936a058a23bf\",\n    \"17635fd0dc7646d9a42a3e4a670f9fec\",\n    \"84f3ef18df3e4c1d91c8cb6f3f59d64b\",\n    \"1bf87260cbbd42e9b6fb27f01c0d30bb\",\n    \"fbf4e13cb33f43789ca390b26d5c5215\",\n    \"5f4fb816d72f4a5194eacd4918fba493\",\n    \"31a39d4a178c4ce8a9ea764e517ce886\",\n    \"24951eb4ddb3452bafd6a4c50af6ba70\",\n    \"37b6841f45a1415c87b7bfbcce388792\",\n    \"a77a1f1b57ab4a7c92153bd0c777b7bc\",\n    \"a46cc3e80d334c05baa58f36bdfbad1e\",\n    \"429405032a5741f0828da769f27646d1\",\n    \"d28c73bd27ed4c5eaab7b8576fa9f041\",\n    \"874d42f55a024a429d559f0afafc8bc5\",\n    \"df4b9c7371c648e6815a4a77d2e3f528\",\n    \"874c059fcff24508a9c16ed1321d867e\",\n    \"db0597609c344be6a313c3b5156c4fd7\",\n    \"2b0f1c4569f840e183d01505eecb2cbd\",\n    \"7e85220a37574ed784a5dde020e27184\",\n    \"2d0d733aa4d047da899855c5caaff4a2\",\n    \"fa24297bc7c94557b1fff64638408fc5\",\n    \"5b69ad1881c043ed8e4a4651207067b0\",\n    \"002fab21c5b148f3b87869c30693161f\",\n    \"c0a772543eb3462dba1a3cb02f893510\",\n    \"2839055537764d8cb6d6f95f98325b6f\",\n    \"82f94203e5774ff4ba4fccf1051c1b0f\",\n    \"30436c0ceb834d39a06738be2f533499\",\n    \"b57ecef7cb944469b84419b593bf1b5c\",\n    \"6e206c9ca5664a178d2948ab2ff13e20\",\n    \"9364fc7fd6174129b9bc8409e3d7bbd9\",\n    \"0f55f27d0e924bb18c313669a00de74a\",\n    \"b9add281605e43d59322ab09ab8895bf\",\n    \"dfc75e8680be476cba2165a72651e5fc\",\n    \"c36161212cc0418889bb32342728237a\",\n    \"7f776e875f0449d2bc21930016f57ad5\",\n    \"ffbf70cfe1514b958f5c2e0fb98852fb\",\n    \"bb2b9a1af0624fb7ac50f8926a92c3ce\",\n    \"db4b4469e73c4e57a470a6fc68739146\",\n    \"2f2a16bc4d5f48fb80f80e9f24bf718a\",\n    \"165360a763874e42991d31dc4b5415a4\",\n    \"9b384e77675d49e5aec33a637a6cf0f1\",\n    \"e4178b7680264cb8abb9d76b217f40f4\",\n    \"89303f7eeb004acc9c28ca4cf01aad8e\",\n    \"16470a297aee49b4bdf3b7ee0b72557a\",\n    \"aab980ef2cf6414e94984323f983d4c0\",\n    \"97a14dd6778e46268379cf66623d4723\",\n    \"0447d60741e54e40a2cff1630e2b2148\",\n    \"8f81797740c142218c382174161463ad\",\n    \"dce1e73848e1467298e6c7b6f9c47ef2\",\n    \"60081f6f9d484b41a626bb0cc2c19d36\",\n    \"8ff9380206334d0db3984d0239e75d54\",\n    \"3309597740d94d52aece7098c3af4b8d\",\n    \"4cbf448f7b28432eb27d48d273b15d19\",\n    \"fa871dfd8330466aa880bbe34bb420c9\",\n    \"1cb6d83742264f0292fb9b3089f6ad23\",\n    \"2664f7d7e5e0465597c4dfda39aabee6\",\n    \"47aea3977bb74b34ac5d5710fe69607d\",\n    \"f81ab7c8833241479d5e51f5bae0b3fd\",\n    \"416894e9af9b4de3b59f756be518f1af\",\n    \"8833e072dec04d62857ee3803d735a7b\",\n    \"7984b484d71e474bbb2a2c1183385568\",\n    \"a02c3d1a07e247d1a80c6352775bcfde\",\n    \"4581b05e45564796b8acb4da468ab035\",\n    \"932d743707e240f0b97691ff11ecc4d5\",\n    \"5fcefb1e84ff448fb53c6fe42df6f822\",\n    \"851b56ae8bd840e7a2a1cb0496e7ffdc\",\n    \"28265e43c5254c8aaf61f53438e10e57\",\n    \"392ff6119b314a8ab2412349a151e358\",\n    \"8fd37f887d8640e8913cacf98a8355f1\",\n    \"b2706ecc519644928f0988b68a9b9d91\",\n    \"e6db221999d0482d898dadf31ed48838\",\n    \"2c9b85eb2905433e86d64b56d70af547\",\n    \"c595e98ec68a4a88bafbf9b708956029\",\n    \"0bece66bf7e84a798660026cdffd0e92\",\n    \"a67883a2d62e4571ba01075760c23357\",\n    \"2dc7a5c3b7a0439c9df3efc7e1f83798\",\n    \"a09ca82fa5a344889180f25227ce8d28\",\n    \"857487e5c6834d4b8fb0ecfca5e85b13\",\n    \"0bfb324a20e24c4b954399243fce307e\",\n    \"0218ebe92b1b42a69a9960a45ab28b43\",\n    \"3b29617fc109458e8b47127c65010674\",\n    \"7e64ad7f4aca4e8090bbe8fa17622e76\",\n    \"2b8604819a774630b10001ec268f784e\",\n    \"e066080a153941bc926a13978368ed2c\",\n    \"9a35f03d2efc4a91a4781687b5b9545d\",\n    \"98cdb4c751ca46ab9fdaa904547651f8\",\n    \"53acd99379694f9f883ee121a3d09efe\",\n    \"66e0c0016ca54219a22ae2f8ab61f07e\",\n    \"df17d2fa760b4b21ac014c38e1bd35ab\",\n    \"1fd7af09b67c42a38d2ece42f4e9f85d\",\n    \"ef0d87c8e4f349dcb44c93fa02362565\",\n    \"f96c51f0f4404abd8153186bb17f1f7e\",\n    \"0de4e641400c490caadcd9b77c74f617\",\n    \"7968aee7f1c9469d89d1aae57cce782b\",\n    \"f298f2ab187f430db4d6dcc3cf4912f6\",\n    \"2f01fffa6bf94f2db4027bae6c3cd6c5\",\n    \"7b9a52e753da4a3b9d22f5b8fe2bae41\",\n    \"5ecb312068c242799fcba1b50be890e1\",\n    \"d7e2649acfaa4eb6b9dd0579788e57eb\",\n    \"88287d1be2bf46dfa4a6669f1518d5f2\",\n    \"b0164fd0c4324dce98b116cc7bcc5b64\",\n    \"7d993c2ed7254f9689eb715cb878fe27\",\n    \"a3204929d14642d3bcf522054c4fb674\",\n    \"6b9ffb0d99b5402cb682a4c8f55f1655\",\n    \"c0e75a27e5bd4da6af95f92dfa7df9b3\",\n    \"80dc15511b9f41f8a79257ea824e2329\",\n    \"fc00e7832fdc4747aaacc504da20c575\",\n    \"0f21123ff4d047169f7e516cfdc8be2a\",\n    \"e6abbd122a33428785a9eaea55f3dbfa\",\n    \"6b4625958d6f4ab2b3f9fcb7683213c1\",\n    \"23d3fd396b754a99ad7e8951174eed67\",\n    \"98b042ec9dc8449f9a5ae63d28e7550e\",\n    \"5ef8c5d07ad24fc68f2b881682bf99cc\",\n    \"cc8fcfe8710c4650886c56b435e50b89\",\n    \"68b5823328be41a489c28fb800866a87\",\n    \"3df1991c61144b67b812890d217d7ee9\",\n    \"b9965540c6144c7e98768eb195618e59\",\n    \"11138f2b105045638ba8c18a11c16f7a\",\n    \"b4e948f132e8439fba8e08311b3344d8\",\n    \"26a3df8a936745769af6cb2e06495b94\",\n    \"42cb18ee96d94745ae62698099103ad2\",\n    \"6b4e727a4abc4657b891a265e44cfb2e\",\n    \"a2b5db0a2ea04692bc9c41fde8728b16\",\n    \"4e4e3f190205418b98fd85d0708235bf\",\n    \"39764dac5e484efea25e6c5b4abd676f\",\n    \"f1c163dd95cf48988278c553cef79fc0\",\n    \"a8fdeaf5754c4118ad9f6f66878a8271\",\n    \"a57ec377186c4c4d8564f76d66af1917\",\n    \"0702db1b60f44cbab95d44c57412265c\",\n    \"cbee42cba1aa43ee9ba90231e29e2724\",\n    \"2fd3ee549c4a4a8885b52bb3471caae4\",\n    \"825664bf305942b38836cf7400555b58\",\n    \"2f42a61f122c429c9a466b6db82da5d7\",\n    \"4a9d1ca7bd8d4593ba6f3a07d36b5416\",\n    \"aacccbf19c6643ff9ee913acbbbd5048\",\n    \"8f74d784feac41a2a357f4dbbaf4fef5\",\n    \"58e27747a42448d8a66bd2e4843f30c7\",\n    \"4ec6dce020c84c529d6f11562850ccb8\",\n    \"85a7bf532e274e90a692b3da9b31aa44\",\n    \"6e5dfefc10f942c980eca70e32d91d33\",\n    \"2ffcd3da37d5453d90782fc6013a2fee\",\n    \"6c5634fbde52409eb5c28c087fc40a49\",\n    \"6551a239f46a4b359b2c6a76b95cadcc\",\n    \"93ec467e1fd646249dee47f75780a1f6\",\n    \"a0f9e33fbeb0411888f6157dfaab43b0\",\n    \"e4ddb3e42956475398b1b13eb02e19c2\",\n    \"5eddbd0f1ff44a38be36ca6cb14b2db6\",\n    \"861b243e7e124b6e9131e6ac26e245f5\",\n    \"f60aa656974a40ab9dbe0807185c2631\",\n    \"4ae825015d9640ccb4c8318b729d5629\",\n    \"31ec5b7c958145be8ad8a2e1aaddc7e7\",\n    \"a9875f1acfd6445aa1ce0910325892c5\",\n    \"e15f94ff18d44e4f90d25401e0811534\",\n    \"2a4a920ff6ee4132ad00298fe7929af0\",\n    \"fb1f77a36519463687b2f07a26815a6f\",\n    \"856a9abe287e436d8e73952d20ca3e03\",\n    \"fb516eed38cb41c4aeb60ee74d6a149c\",\n    \"b489a20a98fd434ca67295071b6e5362\",\n    \"6a579bd0e3784849b0591d4a3b50778e\",\n    \"edbc403c4f024c92a71256de1eed620f\",\n    \"e2067035f3244688bcc7ff77848ca1de\",\n    \"3ade8a83437f4cd68996adff7a150600\",\n    \"a75a04af3dc74f83a4fb24cfaec71495\",\n    \"541caf6dcee048ec84c2729c2a964899\",\n    \"e641191ce61d4783b5a3aee3d227eeb4\",\n    \"c42fccb49f204009b397de568ebe09b2\",\n    \"0c13290224f9459da05b62d2f679ba60\",\n    \"6802b9f541894509af86d3f25916bb36\",\n    \"3406d62c9eb84fa7a82a03618f18d113\",\n    \"ec4d131b2d2941e7b4f717ae752b42a4\",\n    \"f2ba7dff6a224e5fa2d048037bbee502\",\n    \"63b1fb4e8df0446eb04a32f87ef611d6\",\n    \"4359930b095e498fadb60bdc13675b06\",\n    \"94cbcbc47c354cfc9f22caa5d5e87ae0\",\n    \"538b6c8339e04f359f961dfe59560bba\",\n    \"2540db8a5e484fdf8782f51e6a7fc55d\",\n    \"4d52945098344e3b9963a1319da40f0f\",\n    \"c87827ab63344287a3a9159a465cb9c6\",\n    \"b41915becf3949c7b8d492783d7443fb\",\n    \"57f0b51d17e2467cb24d700840545afa\",\n    \"c5cb7d4b835340739e624e1e2d21a071\",\n    \"d0a1db2916f74e15a7f4da832e05893c\",\n    \"8712edff355f44948f66b1d10a6c2bf9\",\n    \"64919a6b4429414191d573d9a31df10b\",\n    \"e82227932ed948d294dd3f5619ea0f99\",\n    \"de093e88e252449084c0438d1f79f0d3\",\n    \"21c81a0be28b44e5b33e9acd7baa2b11\",\n    \"9af4f6d360bb48e788784d49ca573926\",\n    \"7ac6f11a39e94943b70896420f94729c\",\n    \"545dd786184b45b7a6ad6e7feacac267\",\n    \"fc6889f02f674c21b98d95d8a569bf6d\",\n    \"b3c1d73f59074c84bc9efc2e0f3a070d\",\n    \"6bc98fcfe3134587bf478fcc0fd070e5\",\n    \"1f8e4511c2084c968a88c5708941eaf4\",\n    \"bc9174d34f0c48ef90bd25b15d05c1fb\",\n    \"4e78cd5e6bdd48acb15a47bb5a4a6ebe\",\n    \"44a798846d524975855be80b23abb904\",\n    \"bd92ccbf5ce64bae8312e9ebb7679756\",\n    \"3a825b75d3934be4b5cc2b44d76ea0b6\",\n    \"c48f4701fc6d410fad9e2e82c9f6d71a\",\n    \"4bca31c3cc704de098a320db185daaba\",\n    \"314edd98758a4b598970a068f55736a1\",\n    \"df992de1096f468e980e32b9f49c6327\",\n    \"1c483745bb594d6991006c477144e366\",\n    \"ca484ab8645242739c17cbe8932eb27a\",\n    \"1a93a80b2db3489581d91610ba8a37d5\",\n    \"d49d826505f849b4a42062d0b24222a2\",\n    \"1e6f5656bee44c7b97643c1e56178371\",\n    \"5370753f8090493cb68d2f50c1d77002\",\n    \"36a96da6c8894c2f91bb34408202abfb\",\n    \"e3a348fccc274c518cb4b09cafd5abb4\",\n    \"d990b171fbda49b9876bced8a2b0458d\",\n    \"27a6ef3f40994b09a52e3c298ad20697\",\n    \"2ff86cefef634ce48ae7f6bf6d30acf9\",\n    \"c8046f58eb50428183587f77b30d64e2\",\n    \"9e83d7282a4c490fb1acd304aa235ee8\",\n    \"8627acf40fc84ee0b9d072da4b4da14f\",\n    \"ae00b0c9f8354a24a9a0d8b6311e0fea\",\n    \"5f2c56cbd05c44fc87b57a3b443c4658\",\n    \"ca26f01148ef4f61a51c8da772396ff2\",\n    \"d5f97265545f4e6588c557e9063d3879\",\n    \"60476d7c5276cf3952453b997e67bbcc\"\n])\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fe71fa69933f9a99",
+        "type": "redis-instance",
+        "z": "670faf1ccef76851",
+        "server": "9d6c0ea45d351746",
+        "name": "全局redis配置",
+        "topic": "redis",
+        "location": "global",
+        "x": 610,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "d6f079b5609e0a91",
+        "type": "split",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": "2",
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 310,
+        "y": 460,
+        "wires": [
+            [
+                "d50b313ce5863703"
+            ]
+        ]
+    },
+    {
+        "id": "d50b313ce5863703",
+        "type": "function",
+        "z": "670faf1ccef76851",
+        "name": "设置延时",
+        "func": "msg.delay = msg.payload[0][\"ts\"];\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 460,
+        "wires": [
+            [
+                "9fe0eab53d3992e9"
+            ]
+        ]
+    },
+    {
+        "id": "9fe0eab53d3992e9",
+        "type": "delay",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "pauseType": "delayv",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 610,
+        "y": 460,
+        "wires": [
+            [
+                "4094c2cb406a0599"
+            ]
+        ]
+    },
+    {
+        "id": "d1cfb167d095a794",
+        "type": "mqtt in",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "topic": "/hl/datamesh/simulation/FMR",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "1d8b1cc83be3e266",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 200,
+        "y": 580,
+        "wires": [
+            [
+                "7e7ffa3e535a39fc",
+                "68929d01ccf5ac42",
+                "2fadb46a71e39e02"
+            ]
+        ]
+    },
+    {
+        "id": "7e7ffa3e535a39fc",
+        "type": "function",
+        "z": "670faf1ccef76851",
+        "name": "获取上次agv时间",
+        "func": "let payload = msg.payload[\"data\"];\n\nlet redis = context.global.get(\"redis\");\n\nredis.get([\"dfs:agv:ts\"], (err, ts) => {\n        if (err) {\n            node.error(\"Error getting data from Redis: \" + err, msg);\n            return;\n        }\n        msg.payload = payload;\n        msg.ts = ts;\n        msg.topic = \"\";\n        node.send(msg);\n    } \n)\n// msg.payload = payload\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 580,
+        "wires": [
+            [
+                "4094c2cb406a0599",
+                "99bd09a8e7905006"
+            ]
+        ]
+    },
+    {
+        "id": "4b60fda9e3572a1e",
+        "type": "mqtt in",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "topic": "/hl/datamesh/simulation/DOCK",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "1d8b1cc83be3e266",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 190,
+        "y": 200,
+        "wires": [
+            [
+                "9fc69c360c2804b3"
+            ]
+        ]
+    },
+    {
+        "id": "b704a283e1a6eef1",
+        "type": "mqtt in",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "topic": "/hl/datamesh/simulation/PLT",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "1d8b1cc83be3e266",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 360,
+        "wires": [
+            [
+                "02ba4cbe0c19a004",
+                "a89f86ae59406dd5"
+            ]
+        ]
+    },
+    {
+        "id": "55af3235e83f1b4c",
+        "type": "debug",
+        "z": "670faf1ccef76851",
+        "name": "debug 103",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1440,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "347e17971ead36c2",
+        "type": "debug",
+        "z": "670faf1ccef76851",
+        "name": "debug 101",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1110,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "99bd09a8e7905006",
+        "type": "debug",
+        "z": "670faf1ccef76851",
+        "name": "debug 104",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 760,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "a83941707542b155",
+        "type": "debug",
+        "z": "670faf1ccef76851",
+        "name": "debug 105",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "68929d01ccf5ac42",
+        "type": "function",
+        "z": "670faf1ccef76851",
+        "name": "记录agv上次时间",
+        "func": "msg.payload = [\"dfs:agv:ts\", String(Date.parse(new Date()))]\nmsg.topic = \"\"\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 780,
+        "wires": [
+            [
+                "0847a4789807e439"
+            ]
+        ]
+    },
+    {
+        "id": "0847a4789807e439",
+        "type": "redis-command",
+        "z": "670faf1ccef76851",
+        "server": "9d6c0ea45d351746",
+        "command": "set",
+        "name": "",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 700,
+        "y": 780,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a89f86ae59406dd5",
+        "type": "debug",
+        "z": "670faf1ccef76851",
+        "name": "debug 106",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 480,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "dd96bc99a7250276",
+        "type": "debug",
+        "z": "670faf1ccef76851",
+        "name": "debug 107",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "ca174bccf76491dc",
+        "type": "mqtt in",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "topic": "/h1/datamesh/simulation/mixdata",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "abac66f893106971",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 210,
+        "y": 820,
+        "wires": [
+            [
+                "16becdab5b70747e"
+            ]
+        ]
+    },
+    {
+        "id": "daa035ab3e450f58",
+        "type": "mqtt out",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "64cc364b6f4e4d02",
+        "x": 790,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "2fadb46a71e39e02",
+        "type": "debug",
+        "z": "670faf1ccef76851",
+        "name": "debug 109",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 250,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "a35256cc690846fd",
+        "type": "mqtt in",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "topic": "/h1/datamesh/simulation/shipping",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "abac66f893106971",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 210,
+        "y": 880,
+        "wires": [
+            [
+                "16becdab5b70747e"
+            ]
+        ]
+    },
+    {
+        "id": "06597d366bd7962f",
+        "type": "mqtt in",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "topic": "/h1/datamesh/simulation/areainout",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "abac66f893106971",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 260,
+        "y": 940,
+        "wires": [
+            [
+                "16becdab5b70747e"
+            ]
+        ]
+    },
+    {
+        "id": "45a2490c258ef594",
+        "type": "mqtt in",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "topic": "/h1/datamesh/simulation/hr/bushrbus",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "abac66f893106971",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 1000,
+        "wires": [
+            [
+                "16becdab5b70747e"
+            ]
+        ]
+    },
+    {
+        "id": "16becdab5b70747e",
+        "type": "function",
+        "z": "670faf1ccef76851",
+        "name": "转发",
+        "func": "msg.payload = msg.payload;\nmsg.topic = msg.topic;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 880,
+        "wires": [
+            [
+                "7f547fed67429cbc",
+                "daa035ab3e450f58"
+            ]
+        ]
+    },
+    {
+        "id": "7f547fed67429cbc",
+        "type": "debug",
+        "z": "670faf1ccef76851",
+        "name": "debug 110",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 830,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "6db1fe7da1a05770",
+        "type": "mqtt in",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "topic": "/h1/datamesh/simulation/shipping",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "64cc364b6f4e4d02",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 1070,
+        "y": 800,
+        "wires": [
+            [
+                "2ca97d8ab6c9ac34"
+            ]
+        ]
+    },
+    {
+        "id": "2ca97d8ab6c9ac34",
+        "type": "debug",
+        "z": "670faf1ccef76851",
+        "name": "debug 111",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1330,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "7d8d914f083b52c0",
+        "type": "inject",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "/h1/datamesh/simulation/shipping",
+        "payload": "",
+        "payloadType": "date",
+        "x": 570,
+        "y": 1120,
+        "wires": [
+            [
+                "cdf447c111559948"
+            ]
+        ]
+    },
+    {
+        "id": "cdf447c111559948",
+        "type": "mqtt out",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "abac66f893106971",
+        "x": 700,
+        "y": 1120,
+        "wires": []
+    },
+    {
+        "id": "9655c871a02c2d1b",
+        "type": "debug",
+        "z": "670faf1ccef76851",
+        "name": "debug 112",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1290,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "6c1a67e243e0216a",
+        "type": "mqtt in",
+        "z": "670faf1ccef76851",
+        "name": "",
+        "topic": "/h1/datamesh/simulation/Task",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "abac66f893106971",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 1080,
+        "wires": [
+            [
+                "16becdab5b70747e"
+            ]
+        ]
+    },
+    {
+        "id": "64cc364b6f4e4d02",
+        "type": "mqtt-broker",
+        "name": "loacl artemis",
+        "broker": "172.188.123.92",
+        "port": "1884",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "9d6c0ea45d351746",
+        "type": "redis-config",
+        "name": "myRedis",
+        "options": "{\"host\":\"192.168.3.178\",\"port\":\"6379\",\"password\":\"I9SSn4yS01QQb8a09kgbDXK3joOvXcrr\",\"db\":9}",
+        "cluster": false,
+        "optionsType": "json"
+    },
+    {
+        "id": "1d8b1cc83be3e266",
+        "type": "mqtt-broker",
+        "name": "artemis",
+        "broker": "172.188.123.92",
+        "port": "1884",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "abac66f893106971",
+        "type": "mqtt-broker",
+        "name": "public test",
+        "broker": "172.188.123.92",
+        "port": "1884 ",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]

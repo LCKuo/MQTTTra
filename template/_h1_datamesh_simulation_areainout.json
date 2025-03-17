@@ -108,23 +108,44 @@
     ],
     "areainout": [
         {
-            "area": "57\"庫",
-            "inout": "IN",
-            "req_day": 1,
-            "count": 1
-        },
-        {
-            "area": "57\"庫",
+            "area": "B1FC1042",
             "inout": "OUT",
             "req_day": 1,
             "count": 0
         },
         {
-            "area": "57\"庫",
+            "area": "B1FC1042",
             "inout": "IN",
             "req_day": 2,
             "count": 9
         },
+        {
+            "area": "B1FC1042",
+            "inout": "OUT",
+            "req_day": 2,
+            "count": 0
+        },
+
+        {
+            "area": "B1FC1041",
+            "inout": "IN",
+            "req_day": 1,
+            "count": 1
+        },
+        {
+            "area": "B1FC1041",
+            "inout": "OUT",
+            "req_day": 1,
+            "count": 0
+        },
+        {
+            "area": "B1FC1041",
+            "inout": "IN",
+            "req_day": 2,
+            "count": 9
+        },
+
+
         {
             "area": "57\"庫",
             "inout": "OUT",
